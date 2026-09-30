@@ -547,8 +547,10 @@
         </div>
         <div class="loading-dots" id="chat-loading">Putty is thinking...</div>
         <div class="chat-input-area">
+            <button id="mic-btn" onclick="toggleSpeech()" title="Voice Typing" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding: 4px; transition: transform 0.2s;">🎤</button>
             <input type="text" id="chat-input" placeholder="Ask a question..." autocomplete="off">
             <button id="chat-send">Send</button>
+            <button id="chat-stop" style="display:none; background-color: #ef4444; color: white; border: none; border-radius: 24px; padding: 0 16px; font-weight: 600; cursor: pointer;">Stop ⏹</button>
         </div>
     </div>
 
@@ -777,7 +779,13 @@
     const chatHistory = document.getElementById('chat-history');
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send');
+    const chatStopBtn = document.getElementById('chat-stop');
     const chatLoading = document.getElementById('chat-loading');
+    let abortGeneration = false;
+
+    chatStopBtn.addEventListener('click', () => {
+        abortGeneration = true;
+    });
 
     function toggleChat() {
         if (chatUI.style.display === 'flex') {
@@ -907,6 +915,10 @@
         const selectedModel = modelSelect.value;
         const modelLabel = modelSelect.options[modelSelect.selectedIndex].text;
 
+        abortGeneration = false;
+        chatSendBtn.style.display = 'none';
+        chatStopBtn.style.display = 'block';
+
         try {
             const response = await puter.ai.chat(chatContext, { model: selectedModel, stream: true });
             
@@ -926,6 +938,8 @@
             
             // Iterate over the stream chunks
             for await (const chunk of response) {
+                if (abortGeneration) break;
+                
                 const textChunk = typeof chunk === 'string' ? chunk : (chunk?.text || chunk?.message?.content || "");
                 if (textChunk) {
                     if (isFirstChunk) {
@@ -956,11 +970,20 @@
                 }
             }
             
+            if (abortGeneration) {
+                fullResponse += "\n\n*(Generation stopped by user)*";
+                const raw = marked.parse(fullResponse);
+                div.innerHTML = DOMPurify.sanitize(raw);
+                renderMathInElement(div, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false });
+            }
+            
             chatContext += ` ${fullResponse}\n\n`;
             
         } catch (error) {
             appendMsg('bot', `Error: ${error.message}`);
         } finally {
+            chatStopBtn.style.display = 'none';
+            chatSendBtn.style.display = 'block';
             chatLoading.style.display = 'none';
             chatInput.disabled = false;
             chatSendBtn.disabled = false;
@@ -981,6 +1004,58 @@
 
     chatSendBtn.addEventListener('click', sendChat);
     chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChat(); });
+
+    // --- Speech Recognition ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = function(event) {
+            let finalTranscript = '';
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            if (finalTranscript) {
+                chatInput.value += (chatInput.value ? ' ' : '') + finalTranscript;
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event.error);
+            document.getElementById('mic-btn').innerText = '🎤';
+            document.getElementById('mic-btn').style.transform = 'scale(1)';
+        };
+
+        recognition.onend = function() {
+            document.getElementById('mic-btn').innerText = '🎤';
+            document.getElementById('mic-btn').style.transform = 'scale(1)';
+        };
+    }
+
+    function toggleSpeech() {
+        if (!recognition) {
+            alert('Speech-to-Text is not supported in your browser (try Chrome, Edge, or Safari).');
+            return;
+        }
+        const micBtn = document.getElementById('mic-btn');
+        if (micBtn.innerText === '🔴') {
+            recognition.stop();
+        } else {
+            recognition.start();
+            micBtn.innerText = '🔴';
+            micBtn.style.transform = 'scale(1.2)';
+            chatInput.focus();
+        }
+    }
 
     // Initialize the app
     init();
