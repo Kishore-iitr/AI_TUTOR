@@ -395,34 +395,103 @@
             background: white;
             border-top: 1px solid #e2e8f0;
             display: flex;
-            gap: 12px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 24px;
+            padding: 4px 12px;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+            background: white;
         }
 
         #chat-input {
             flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 24px;
+            padding: 10px 4px;
+            border: none;
+            background: transparent;
             outline: none;
             font-size: 0.95rem;
             font-family: inherit;
-            transition: border-color 0.2s;
         }
-        #chat-input:focus { border-color: var(--primary-light); }
         
-        #chat-send {
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .icon-btn:hover {
+            color: var(--primary);
+            background: #e2e8f0;
+        }
+
+        .icon-btn.recording {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        
+        .btn-primary {
             background-color: var(--primary-light);
             color: white;
             border: none;
             border-radius: 24px;
-            padding: 0 24px;
+            padding: 0 20px;
+            height: 42px;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        #chat-send:hover:not(:disabled) { background-color: #1d4ed8; }
-        #chat-send:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) { background-color: #1d4ed8; }
+        .btn-primary:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+        .btn-stop {
+            background-color: white;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 24px;
+            padding: 0 20px;
+            height: 42px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-stop:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+        }
 
         .loading-dots { display: none; align-self: flex-start; color: var(--text-muted); font-size: 0.85rem; margin-left: 8px; font-weight: 500;}
 
@@ -547,10 +616,26 @@
         </div>
         <div class="loading-dots" id="chat-loading">Putty is thinking...</div>
         <div class="chat-input-area">
-            <button id="mic-btn" onclick="toggleSpeech()" title="Voice Typing" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding: 4px; transition: transform 0.2s;">🎤</button>
-            <input type="text" id="chat-input" placeholder="Ask a question..." autocomplete="off">
-            <button id="chat-send">Send</button>
-            <button id="chat-stop" style="display:none; background-color: #ef4444; color: white; border: none; border-radius: 24px; padding: 0 16px; font-weight: 600; cursor: pointer;">Stop ⏹</button>
+            <div class="input-wrapper">
+                <input type="text" id="chat-input" placeholder="Ask a question..." autocomplete="off">
+                <button id="mic-btn" class="icon-btn" onclick="toggleSpeech()" title="Voice Typing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+            <button id="chat-send" class="btn-primary">
+                Send
+            </button>
+            <button id="chat-stop" class="btn-stop" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect>
+                </svg>
+                Stop
+            </button>
         </div>
     </div>
 
@@ -1031,13 +1116,11 @@
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error', event.error);
-            document.getElementById('mic-btn').innerText = '🎤';
-            document.getElementById('mic-btn').style.transform = 'scale(1)';
+            document.getElementById('mic-btn').classList.remove('recording');
         };
 
         recognition.onend = function() {
-            document.getElementById('mic-btn').innerText = '🎤';
-            document.getElementById('mic-btn').style.transform = 'scale(1)';
+            document.getElementById('mic-btn').classList.remove('recording');
         };
     }
 
@@ -1047,12 +1130,11 @@
             return;
         }
         const micBtn = document.getElementById('mic-btn');
-        if (micBtn.innerText === '🔴') {
+        if (micBtn.classList.contains('recording')) {
             recognition.stop();
         } else {
             recognition.start();
-            micBtn.innerText = '🔴';
-            micBtn.style.transform = 'scale(1.2)';
+            micBtn.classList.add('recording');
             chatInput.focus();
         }
     }
