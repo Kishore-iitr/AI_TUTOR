@@ -32,6 +32,10 @@
             --text-muted: #64748b;
         }
 
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
         body {
             margin: 0;
             font-family: 'Inter', system-ui, sans-serif; /* Clean sans-serif stack */
@@ -851,15 +855,25 @@
             // Create a new empty message div for the bot's streaming response
             const div = document.createElement('div');
             div.className = `msg msg-bot`;
+            div.innerHTML = `<span style="color: #94a3b8; font-style: italic; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+                Thinking...
+            </span>`;
             chatHistory.appendChild(div);
-            chatLoading.style.display = 'none'; // hide thinking dots once streaming starts
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            chatLoading.style.display = 'none'; 
             
             let fullResponse = "";
+            let isFirstChunk = true;
             
             // Iterate over the stream chunks
             for await (const chunk of response) {
                 const textChunk = typeof chunk === 'string' ? chunk : (chunk?.text || chunk?.message?.content || "");
                 if (textChunk) {
+                    if (isFirstChunk) {
+                        div.innerHTML = ""; // Clear 'Thinking...' indicator
+                        isFirstChunk = false;
+                    }
                     fullResponse += textChunk;
                     
                     // Render markdown & math continuously
