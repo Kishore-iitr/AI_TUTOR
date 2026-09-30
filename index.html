@@ -573,7 +573,7 @@
     }
 
     // Marked.js config
-    marked.setOptions({ breaks: true, gfm: true });
+    marked.use({ breaks: true, gfm: true });
     if (window.markedKatex) {
         marked.use(window.markedKatex({ throwOnError: false }));
     }
