@@ -845,14 +845,41 @@
         else if (modelLabel.includes('Ultra')) costMultiplier = 50.0;
 
         try {
-            const response = await puter.ai.chat(chatContext, { model: selectedModel });
-            const responseText = typeof response === 'string' ? response : (response.text || response.message?.content || JSON.stringify(response));
+            const response = await puter.ai.chat(chatContext, { model: selectedModel, stream: true });
             
-            chatContext += ` ${responseText}\n\n`;
-            appendMsg('bot', responseText);
+            // Create a new empty message div for the bot's streaming response
+            const div = document.createElement('div');
+            div.className = `msg msg-bot`;
+            chatHistory.appendChild(div);
+            chatLoading.style.display = 'none'; // hide thinking dots once streaming starts
+            
+            let fullResponse = "";
+            
+            // Iterate over the stream chunks
+            for await (const chunk of response) {
+                const textChunk = typeof chunk === 'string' ? chunk : (chunk?.text || chunk?.message?.content || "");
+                if (textChunk) {
+                    fullResponse += textChunk;
+                    
+                    // Render markdown & math continuously
+                    const raw = marked.parse(fullResponse);
+                    div.innerHTML = DOMPurify.sanitize(raw);
+                    renderMathInElement(div, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ],
+                        throwOnError: false
+                    });
+                    
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
+            }
+            
+            chatContext += ` ${fullResponse}\n\n`;
             
             // Update the circular allowance bar
-            updateAllowance(costMultiplier, text.length + responseText.length);
+            updateAllowance(costMultiplier, text.length + fullResponse.length);
         } catch (error) {
             appendMsg('bot', `Error: ${error.message}`);
         } finally {
