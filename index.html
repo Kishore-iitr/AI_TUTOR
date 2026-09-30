@@ -293,6 +293,11 @@
         }
         .chat-header button:hover { opacity: 1; }
         
+        #model-select option {
+            color: black;
+            background-color: white;
+        }
+        
         .usage-circle {
             width: 36px;
             height: 36px;
@@ -533,7 +538,7 @@
             </div>
         </div>
         <div id="chat-history">
-            <div class="msg msg-bot">Hello! I am Putty, your AI tutor. I have been configured to use the 100% free OpenRouter models. Paste any text from the notes or ask me a question!</div>
+            <div class="msg msg-bot">Hi ! ask your doubts</div>
         </div>
         <div class="loading-dots" id="chat-loading">Putty is thinking...</div>
         <div class="chat-input-area">
@@ -580,11 +585,18 @@
         const savedChatContext = localStorage.getItem('chatContext');
         const savedAllowance = localStorage.getItem('chatAllowance');
         if (savedChatHtml && savedChatContext) {
-            document.getElementById('chat-history').innerHTML = savedChatHtml;
-            chatContext = savedChatContext;
-            if (savedAllowance) {
-                allowance = parseFloat(savedAllowance);
-                updateAllowance(0, 0); // trigger UI update without deducting cost
+            if (savedChatHtml.includes("Hello! I am Putty")) {
+                // Clear old cached history so the new initial text is shown
+                localStorage.removeItem('chatHistoryHtml');
+                localStorage.removeItem('chatContext');
+                localStorage.removeItem('chatAllowance');
+            } else {
+                document.getElementById('chat-history').innerHTML = savedChatHtml;
+                chatContext = savedChatContext;
+                if (savedAllowance) {
+                    allowance = parseFloat(savedAllowance);
+                    updateAllowance(0, 0); // trigger UI update without deducting cost
+                }
             }
         }
 
