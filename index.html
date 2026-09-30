@@ -10,6 +10,7 @@
     
     <!-- Markdown & Sanitization -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@5.1.3/lib/index.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     
     <!-- KaTeX for Math rendering -->
@@ -536,6 +537,7 @@
                 <div class="usage-circle" id="usage-circle" title="Credits managed dynamically by your Puter.com account" style="background: conic-gradient(#4ade80 100%, #1e293b 0);">
                     <div class="usage-inner" id="usage-text" style="font-size: 1rem;">♾️</div>
                 </div>
+                <button id="auth-btn" onclick="toggleAuth()" title="Sign in to Puter" style="font-size: 0.8rem; font-weight: bold; background: white; color: var(--primary); padding: 4px 8px; border-radius: 4px;">Login</button>
                 <button onclick="clearChat()" title="Clear Chat History" style="font-size: 1.1rem;">🗑️</button>
                 <button onclick="toggleChat()" title="Close Chat">✖</button>
             </div>
@@ -572,6 +574,9 @@
 
     // Marked.js config
     marked.setOptions({ breaks: true, gfm: true });
+    if (window.markedKatex) {
+        marked.use(window.markedKatex({ throwOnError: false }));
+    }
 
     async function init() {
         try {
@@ -583,6 +588,13 @@
             console.error("Failed to load simulations", e);
         }
         
+        // Check auth status
+        if (puter.isSignedIn && puter.isSignedIn()) {
+            document.getElementById('auth-btn').innerText = 'Logout';
+            document.getElementById('auth-btn').title = 'Sign out of Puter';
+            updateRealAllowance();
+        }
+
         // Load chat history from localStorage
         const savedChatHtml = localStorage.getItem('chatHistoryHtml');
         const savedChatContext = localStorage.getItem('chatContext');
@@ -821,6 +833,28 @@
         }
     }
 
+    async function toggleAuth() {
+        if (puter.isSignedIn && puter.isSignedIn()) {
+            puter.auth.signOut();
+            document.getElementById('auth-btn').innerText = 'Login';
+            document.getElementById('auth-btn').title = 'Sign in to Puter';
+            const circle = document.getElementById('usage-circle');
+            circle.style.background = `conic-gradient(#4ade80 100%, #1e293b 0)`;
+            document.getElementById('usage-text').innerText = `♾️`;
+            appendMsg('bot', 'You have been logged out of your Puter account. You are now using the default anonymous profile.');
+        } else {
+            try {
+                await puter.auth.signIn();
+                document.getElementById('auth-btn').innerText = 'Logout';
+                document.getElementById('auth-btn').title = 'Sign out of Puter';
+                updateRealAllowance();
+                appendMsg('bot', 'Successfully logged in to Puter! Your API usage is now linked to your account.');
+            } catch (e) {
+                console.log('Login failed or cancelled', e);
+            }
+        }
+    }
+
     function clearChat() {
         localStorage.removeItem('chatHistoryHtml');
         localStorage.removeItem('chatContext');
@@ -837,7 +871,12 @@
             div.textContent = text;
         } else {
             // Markdown & Math for bot
-            const raw = marked.parse(text);
+            let preprocessed = text
+                .replace(/\\\[/g, '$$$$')
+                .replace(/\\\]/g, '$$$$')
+                .replace(/\\\(/g, '$$')
+                .replace(/\\\)/g, '$$');
+            const raw = marked.parse(preprocessed);
             div.innerHTML = DOMPurify.sanitize(raw);
             renderMathInElement(div, {
                 delimiters: [
@@ -897,7 +936,12 @@
                     fullResponse += textChunk;
                     
                     // Render markdown & math continuously
-                    const raw = marked.parse(fullResponse);
+                    let preprocessed = fullResponse
+                        .replace(/\\\[/g, '$$$$')
+                        .replace(/\\\]/g, '$$$$')
+                        .replace(/\\\(/g, '$$')
+                        .replace(/\\\)/g, '$$');
+                    const raw = marked.parse(preprocessed);
                     div.innerHTML = DOMPurify.sanitize(raw);
                     renderMathInElement(div, {
                         delimiters: [
