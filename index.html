@@ -835,13 +835,12 @@
 
     async function toggleAuth() {
         if (puter.isSignedIn && puter.isSignedIn()) {
-            puter.auth.signOut();
-            document.getElementById('auth-btn').innerText = 'Login';
-            document.getElementById('auth-btn').title = 'Sign in to Puter';
-            const circle = document.getElementById('usage-circle');
-            circle.style.background = `conic-gradient(#4ade80 100%, #1e293b 0)`;
-            document.getElementById('usage-text').innerText = `♾️`;
-            appendMsg('bot', 'You have been logged out of your Puter account. You are now using the default anonymous profile.');
+            try {
+                await puter.auth.signOut();
+            } catch(e) {
+                console.log(e);
+            }
+            window.location.reload();
         } else {
             try {
                 await puter.auth.signIn();
