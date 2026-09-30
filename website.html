@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBSE Class 10 Science Notes</title>
+    
+    <!-- Puter.js -->
+    <script src="https://js.puter.com/v2/"></script>
+    
+    <!-- Markdown & Sanitization -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    
+    <!-- KaTeX for Math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1e3a8a; /* Deep primary color (dark blue) */
+            --primary-light: #2563eb;
+            --bg-color: #f8fafc;
+            --sidebar-bg: #111827; /* Darker, cleaner sidebar */
+            --sidebar-hover: #1f2937;
+            --text-dark: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #64748b;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif; /* Clean sans-serif stack */
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Layout */
+        #sidebar {
+            width: 340px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            transition: margin-left 0.3s ease, transform 0.3s ease;
+            z-index: 100;
+        }
+        
+        body.sidebar-collapsed #sidebar {
+            margin-left: -340px;
+        }
+        
+        body.sidebar-collapsed #mobile-menu-btn {
+            display: block;
+        }
+        
+        .sidebar-header {
+            padding: 24px 24px 30px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background-color: #0f172a;
+        }
+        .sidebar-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .collapse-btn:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .chapter-btn {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            padding: 16px 24px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        .chapter-btn:hover, .chapter-btn.active {
+            background-color: var(--sidebar-hover);
+            color: white;
+            border-left-color: var(--primary-light);
+        }
+
+        .subtopics-container {
+            display: none;
+            background-color: #0b0f19;
+        }
+        
+        .subtopic-btn {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 12px 24px 12px 48px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .subtopic-btn:hover, .subtopic-btn.active {
+            background-color: rgba(255,255,255,0.05);
+            color: #93c5fd;
+        }
+
+        #main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 60px 40px;
+            scroll-behavior: smooth;
+        }
+
+        .content-container {
+            max-width: 800px; /* Constrained readable width */
+            margin: 0 auto;
+            background: white;
+            padding: 50px 60px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Note Content Styling - Modern Typography */
+        h1 { 
+            color: var(--primary); 
+            font-size: 2.5rem; 
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 2rem; 
+            border-bottom: 3px solid #f1f5f9; 
+            padding-bottom: 15px; 
+            line-height: 1.2;
+        }
+        h2 { 
+            color: var(--primary); 
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 2.5rem; 
+            margin-bottom: 1rem;
+        }
+        h3 { 
+            color: #334155; 
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        p { 
+            line-height: 1.6; /* Increased line-height */
+            font-size: 1.1rem; 
+            color: #334155; 
+            margin-bottom: 1.5rem; 
+        }
+        
+        figure { margin: 2.5rem 0; text-align: center; }
+        img { max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        figcaption { margin-top: 12px; font-style: italic; color: var(--text-muted); font-size: 0.95rem; }
+        
+        /* Table Styling */
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse; /* Collapsed borders */
+            margin: 2rem 0; 
+            font-size: 1.05rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px #e2e8f0;
+        }
+        .data-table th, .data-table td { 
+            padding: 16px 20px; /* Sufficient cell padding */
+            text-align: left; 
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table th { 
+            background-color: #f8fafc; /* Subtle background for headers */
+            font-weight: 600; 
+            color: var(--primary);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:nth-child(even) { background-color: #f8fafc; } /* Zebra striping */
+        .data-table tr:hover td { background-color: #f1f5f9; }
+
+        ul, ol { 
+            line-height: 1.6; 
+            font-size: 1.1rem; 
+            color: #334155; 
+            margin-bottom: 1.5rem; 
+            padding-left: 1.5rem; 
+        }
+        li { margin-bottom: 0.5rem; }
+
+        /* Floating Putty Chatbot */
+        #putty-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        #putty-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+            transition: all 0.2s ease;
+        }
+        #putty-icon:hover { transform: scale(1.08); box-shadow: 0 12px 28px rgba(37, 99, 235, 0.5); }
+
+        #putty-chat {
+            display: none;
+            width: 450px;
+            min-width: 300px;
+            max-width: 60vw;
+            background: white;
+            box-shadow: -4px 0 25px rgba(0,0,0,0.1);
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 4px solid #cbd5e1; /* Visual handle on the left edge */
+            z-index: 100;
+            direction: rtl; /* Flips the CSS resize handle to the bottom-left corner! */
+            resize: horizontal; /* Enables stretching to the left, squeezing main-content */
+        }
+        
+        #putty-chat > * {
+            direction: ltr; /* Reset text direction for chat contents */
+        }
+
+        .chat-header {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 1.15rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            opacity: 0.8;
+            padding: 0;
+            transition: opacity 0.2s;
+        }
+        .chat-header button:hover { opacity: 1; }
+
+        #chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: #f8fafc;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .msg-user {
+            background-color: var(--primary-light);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-bot {
+            background-color: white;
+            color: #334155;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .msg-bot p { font-size: 0.95rem; margin-bottom: 8px; }
+        .msg-bot p:last-child { margin-bottom: 0; }
+
+        .chat-input-area {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 24px;
+            outline: none;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        #chat-input:focus { border-color: var(--primary-light); }
+        
+        #chat-send {
+            background-color: var(--primary-light);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 0 24px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #chat-send:hover:not(:disabled) { background-color: #1d4ed8; }
+        #chat-send:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+        .loading-dots { display: none; align-self: flex-start; color: var(--text-muted); font-size: 0.85rem; margin-left: 8px; font-weight: 500;}
+
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Mobile Menu Button */
+        #mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            #sidebar {
+                position: fixed;
+                height: 100vh;
+                transform: translateX(-100%);
+                margin-left: 0 !important; /* override desktop collapse */
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            #mobile-menu-btn {
+                display: block !important;
+            }
+            #main-content {
+                padding: 70px 20px 30px 20px; /* Extra top padding for mobile menu btn */
+            }
+            .content-container {
+                padding: 40px 30px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .content-container {
+                padding: 30px 20px;
+            }
+            h1 { font-size: 2rem; }
+            #putty-chat {
+                width: 100vw;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">Loading Dataset...</div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-header-top">
+                <h2>CBSE Class 10</h2>
+                <button class="collapse-btn" onclick="toggleSidebar()" title="Collapse Menu">◀</button>
+            </div>
+            <select id="subject-select" onchange="switchSubject(this.value)" style="width: 100%; padding: 10px; margin-top: 12px; border-radius: 8px; background: #1f2937; color: white; border: 1px solid #374151; font-family: inherit; font-size: 0.95rem; cursor: pointer; outline: none;">
+                <option value="science">Science Notes & simulations</option>
+                <option value="maths">Maths Notes & simulations</option>
+            </select>
+        </div>
+        <div id="chapter-list">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-content">
+        <div class="content-container" id="content-container">
+            <h1>Welcome to Class 10 Science</h1>
+            <p>Select a chapter and subtopic from the left sidebar to start reading.</p>
+            <p><strong>Have questions?</strong> Highlight and copy any text, then click the Putty Chat icon in the bottom right corner to ask the AI Tutor for help!</p>
+        </div>
+    </div>
+
+    <!-- Dynamic Split-Screen Chat Panel -->
+    <div id="putty-chat">
+        <div class="chat-header">
+            Putty AI Tutor
+            <button onclick="toggleChat()">✖</button>
+        </div>
+        <div id="chat-history">
+            <div class="msg msg-bot">Hello! I am Putty, your AI tutor. I have been configured to use the 100% free OpenRouter models. Paste any text from the notes or ask me a question!</div>
+        </div>
+        <div class="loading-dots" id="chat-loading">Putty is thinking...</div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask a question..." autocomplete="off">
+            <button id="chat-send">Send</button>
+        </div>
+    </div>
+
+    <!-- Floating Chatbot Icon -->
+    <div id="putty-container">
+        <div id="putty-icon" onclick="toggleChat()" title="Ask Putty AI">🤖</div>
+    </div>
+
+<script>
+    let dataset = null;
+    let datasetCache = {};
+    let simulationsData = null;
+    let currentSubject = 'science';
+    let chatContext = "";
+
+    function toggleSidebar() {
+        if (window.innerWidth <= 1024) {
+            document.getElementById('sidebar').classList.toggle('open');
+        } else {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+    }
+
+    // Marked.js config
+    marked.setOptions({ breaks: true, gfm: true });
+
+    async function init() {
+        try {
+            const simRes = await fetch('sci_math_simulations.json');
+            if (simRes.ok) {
+                simulationsData = await simRes.json();
+            }
+        } catch (e) {
+            console.error("Failed to load simulations", e);
+        }
+        await loadSubject('science');
+    }
+
+    async function switchSubject(subject) {
+        document.getElementById('content-container').innerHTML = `<h1>Loading...</h1>`;
+        await loadSubject(subject);
+    }
+
+    async function loadSubject(subject) {
+        currentSubject = subject;
+        try {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            if (!datasetCache[subject]) {
+                const filename = subject === 'science' ? 'cbse_science_scraped_dataset.json' : 'cbse_maths_scraped_dataset.json';
+                const response = await fetch(filename);
+                if (!response.ok) throw new Error("File not found");
+                datasetCache[subject] = await response.json();
+            }
+            
+            dataset = datasetCache[subject];
+            buildSidebar();
+            
+            const subjectName = subject === 'science' ? 'Science' : 'Mathematics';
+            
+            document.getElementById('content-container').innerHTML = `
+                <h1>Welcome to Class 10 ${subjectName}</h1>
+                <p>Select a chapter and subtopic from the left sidebar to start reading.</p>
+                <p><strong>Have questions?</strong> Highlight and copy any text, then click the Chat icon in the bottom right corner to ask the AI Tutor for help!</p>
+            `;
+            
+            chatContext = `System: You are Putty, an expert AI tutor for CBSE Class 10 ${subjectName}. A student is reading their notes and asking you questions. Answer clearly, accurately, and format your output cleanly using Markdown and LaTeX (use $$...$$ for math formulas).\n\n`;
+
+            document.getElementById('loading-overlay').style.display = 'none';
+        } catch (error) {
+            console.error(error);
+            const sub = subject === 'science' ? 'Science' : 'Mathematics';
+            document.getElementById('loading-overlay').innerHTML = `<div style="text-align:center;">Error loading ${sub} dataset.<br><span style="font-size:1rem; font-weight:normal; color:#334155;">Make sure the scraper has finished generating the JSON file.</span></div>`;
+        }
+    }
+
+    // Build Sidebar Navigation
+    function buildSidebar() {
+        const listDiv = document.getElementById('chapter-list');
+        listDiv.innerHTML = ''; // Clear previous items
+        
+        let subjectSims = [];
+        if (simulationsData) {
+            subjectSims = simulationsData['subject_' + currentSubject] || [];
+        }
+
+        dataset.chapters.forEach((chapter, index) => {
+            if (chapter.subtopics.length === 0) return; // skip empty
+            
+            const chapBtn = document.createElement('button');
+            chapBtn.className = 'chapter-btn';
+            chapBtn.textContent = `Chapter ${chapter.chapter_number}: ${chapter.chapter_title}`;
+            
+            const subContainer = document.createElement('div');
+            subContainer.className = 'subtopics-container';
+            
+            // Add normal subtopics
+            chapter.subtopics.forEach(sub => {
+                const subBtn = document.createElement('button');
+                subBtn.className = 'subtopic-btn';
+                subBtn.textContent = sub.subtopic_title;
+                subBtn.onclick = () => renderSubtopic(chapter, sub, subBtn, chapBtn);
+                subContainer.appendChild(subBtn);
+            });
+            
+            // Add simulations for this chapter
+            const chapSims = subjectSims.find(s => s.chapter_number === chapter.chapter_number);
+            if (chapSims && chapSims.experiments) {
+                chapSims.experiments.forEach(exp => {
+                    const simBtn = document.createElement('button');
+                    simBtn.className = 'subtopic-btn';
+                    simBtn.innerHTML = `🎮 ${exp.experiment_title}`;
+                    simBtn.style.color = '#fbbf24'; // Highlight simulations in yellow/gold
+                    simBtn.onclick = () => window.open(exp.simulation_url, '_blank');
+                    simBtn.title = exp.learning_objective;
+                    subContainer.appendChild(simBtn);
+                });
+            }
+            
+            chapBtn.onclick = () => {
+                const isExpanded = subContainer.style.display === 'block';
+                // Close all others
+                document.querySelectorAll('.subtopics-container').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.chapter-btn').forEach(el => el.classList.remove('active'));
+                
+                if (!isExpanded) {
+                    subContainer.style.display = 'block';
+                    chapBtn.classList.add('active');
+                }
+            };
+            
+            listDiv.appendChild(chapBtn);
+            listDiv.appendChild(subContainer);
+        });
+    }
+
+    // Render Subtopic Content
+    function renderSubtopic(chapter, subtopic, subBtn, chapBtn) {
+        // Highlight active sidebar items
+        document.querySelectorAll('.subtopic-btn').forEach(el => el.classList.remove('active'));
+        subBtn.classList.add('active');
+        
+        // Close sidebar on mobile
+        document.getElementById('sidebar').classList.remove('open');
+
+        const container = document.getElementById('content-container');
+        container.innerHTML = `<h1>${subtopic.subtopic_title}</h1>`;
+        
+        subtopic.content_elements.forEach(el => {
+            if (el.type === 'heading') {
+                container.innerHTML += `<h${el.level}>${el.text}</h${el.level}>`;
+            } 
+            else if (el.type === 'paragraph') {
+                container.innerHTML += `<p>${el.text}</p>`;
+            } 
+            else if (el.type === 'formula') {
+                // Ensure formula is wrapped in $$ for KaTeX auto-render
+                let fText = el.text;
+                if (!fText.startsWith('$$')) fText = `$$${fText}$$`;
+                container.innerHTML += `<p class="math-formula">${fText}</p>`;
+            } 
+            else if (el.type === 'list') {
+                const tag = el.list_type === 'ordered' ? 'ol' : 'ul';
+                const items = el.items.map(i => `<li>${i}</li>`).join('');
+                container.innerHTML += `<${tag}>${items}</${tag}>`;
+            } 
+            else if (el.type === 'table') {
+                let tableHtml = '<table class="data-table"><thead><tr>';
+                el.headers.forEach(h => tableHtml += `<th>${h}</th>`);
+                tableHtml += '</tr></thead><tbody>';
+                el.rows.forEach(r => {
+                    tableHtml += '<tr>';
+                    r.forEach(c => tableHtml += `<td>${c}</td>`);
+                    tableHtml += '</tr>';
+                });
+                tableHtml += '</tbody></table>';
+                container.innerHTML += tableHtml;
+            } 
+            else if (el.type === 'image') {
+                container.innerHTML += `<figure><img src="${el.src}" alt="${el.alt}"><figcaption>${el.alt}</figcaption></figure>`;
+            }
+        });
+
+        // Trigger KaTeX rendering on the container
+        renderMathInElement(container, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+        });
+
+        // Scroll top
+        document.getElementById('main-content').scrollTop = 0;
+    }
+
+    // Chatbot Logic
+    const chatUI = document.getElementById('putty-chat');
+    const chatHistory = document.getElementById('chat-history');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send');
+    const chatLoading = document.getElementById('chat-loading');
+
+    function toggleChat() {
+        if (chatUI.style.display === 'flex') {
+            chatUI.style.display = 'none';
+        } else {
+            chatUI.style.display = 'flex';
+            chatInput.focus();
+        }
+    }
+
+    function appendMsg(sender, text) {
+        const div = document.createElement('div');
+        div.className = `msg msg-${sender}`;
+        
+        if (sender === 'user') {
+            div.textContent = text;
+        } else {
+            // Markdown & Math for bot
+            const raw = marked.parse(text);
+            div.innerHTML = DOMPurify.sanitize(raw);
+            renderMathInElement(div, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        }
+        chatHistory.appendChild(div);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    async function sendChat() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        
+        appendMsg('user', text);
+        chatInput.value = '';
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        chatLoading.style.display = 'block';
+
+        chatContext += `User: ${text}\nPutty:`;
+
+        try {
+            // Hardcoded to openrouter/free as requested
+            const response = await puter.ai.chat(chatContext, { model: 'openrouter/free' });
+            const responseText = typeof response === 'string' ? response : (response.text || response.message?.content || JSON.stringify(response));
+            
+            chatContext += ` ${responseText}\n\n`;
+            appendMsg('bot', responseText);
+        } catch (error) {
+            appendMsg('bot', `Error: ${error.message}`);
+        } finally {
+            chatLoading.style.display = 'none';
+            chatInput.disabled = false;
+            chatSendBtn.disabled = false;
+            chatInput.focus();
+        }
+    }
+
+    chatSendBtn.addEventListener('click', sendChat);
+    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChat(); });
+
+    // Initialize the app
+    init();
+</script>
+</body>
+</html>

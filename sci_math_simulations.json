@@ -1,0 +1,465 @@
+{
+  "subject_science": [
+    {
+      "chapter_number": 1,
+      "chapter_name": "Chemical Reactions and Equations",
+      "experiments": [
+        {
+          "experiment_title": "Balancing Chemical Equations & Law of Conservation of Mass",
+          "simulation_name": "Balancing Chemical Equations",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/balancing-chemical-equations",
+          "learning_objective": "To balance the number of atoms of reactants and products so that mass is conserved in a chemical equation."
+        },
+        {
+          "experiment_title": "Limiting Reactants and Formation of Products",
+          "simulation_name": "Reactants, Products and Leftovers",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/reactants-products-and-leftovers",
+          "learning_objective": "To see how reactants combine in fixed ratios to form products and why some reactant is left over."
+        },
+        {
+          "experiment_title": "Reversible Reactions and Equilibrium",
+          "simulation_name": "Reversible Reactions",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/reversible-reactions",
+          "learning_objective": "To understand how forward and reverse reactions occur and how the system reaches a balance of reactants and products."
+        }
+      ]
+    },
+    {
+      "chapter_number": 2,
+      "chapter_name": "Acids, Bases and Salts",
+      "experiments": [
+        {
+          "experiment_title": "Measuring the pH of Common Substances",
+          "simulation_name": "pH Scale",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/ph-scale",
+          "learning_objective": "To measure and compare the pH of everyday liquids and relate pH to H+ and OH- ion concentration."
+        },
+        {
+          "experiment_title": "Strong and Weak Acids and Bases",
+          "simulation_name": "Acid-Base Solutions",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/acid-base-solutions",
+          "learning_objective": "To compare the ionisation of strong and weak acids and bases in water and how it affects conductivity and pH."
+        }
+      ]
+    },
+    {
+      "chapter_number": 3,
+      "chapter_name": "Metals and Non-metals",
+      "experiments": [
+        {
+          "experiment_title": "Atomic Structure and Electron Configuration of Metals and Non-metals",
+          "simulation_name": "Build an Atom",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/build-an-atom",
+          "learning_objective": "To build atoms and ions and see how gaining or losing electrons leads to the formation of ionic compounds."
+        },
+        {
+          "experiment_title": "Ionic Compounds: Dissolving Salts",
+          "simulation_name": "Soluble Salts",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/soluble-salts",
+          "learning_objective": "To observe how ionic compounds formed from metals and non-metals dissociate in water."
+        }
+      ]
+    },
+    {
+      "chapter_number": 4,
+      "chapter_name": "Carbon and its Compounds",
+      "experiments": [
+        {
+          "experiment_title": "Building Covalent Molecules",
+          "simulation_name": "Build a Molecule",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/build-a-molecule",
+          "learning_objective": "To assemble molecules from atoms and understand covalent bonding and valency."
+        },
+        {
+          "experiment_title": "Shapes of Molecules and Bonding",
+          "simulation_name": "Molecule Shapes",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/molecule-shapes",
+          "learning_objective": "To explore single, double and triple bonds and the 3D geometry of carbon-based molecules."
+        },
+        {
+          "experiment_title": "Polarity of Covalent Molecules",
+          "simulation_name": "Molecule Polarity",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/molecule-polarity",
+          "learning_objective": "To relate electronegativity difference to bond polarity in covalent compounds."
+        }
+      ]
+    },
+    {
+      "chapter_number": 5,
+      "chapter_name": "Life Processes",
+      "experiments": [
+        {
+          "experiment_title": "Diffusion of Substances (Foundation for Transport and Exchange)",
+          "simulation_name": "Diffusion",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/diffusion",
+          "learning_objective": "To observe how particles move from higher to lower concentration, the basis of gas exchange and transport in organisms."
+        },
+        {
+          "experiment_title": "Movement of Molecules Across Cell Membranes",
+          "simulation_name": "Membrane Channels",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/membrane-channels",
+          "learning_objective": "To understand how substances cross a cell membrane through channels, relevant to absorption and excretion."
+        }
+      ]
+    },
+    {
+      "chapter_number": 6,
+      "chapter_name": "Control and Coordination",
+      "experiments": [
+        {
+          "experiment_title": "Nerve Impulse Transmission",
+          "simulation_name": "Neuron",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/neuron",
+          "learning_objective": "To observe how a stimulus triggers an electrical impulse that travels along a neuron."
+        }
+      ]
+    },
+    {
+      "chapter_number": 7,
+      "chapter_name": "How do Organisms Reproduce?",
+      "experiments": []
+    },
+    {
+      "chapter_number": 8,
+      "chapter_name": "Heredity",
+      "experiments": [
+        {
+          "experiment_title": "Inheritance of Traits and Variation in a Population",
+          "simulation_name": "Natural Selection",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/natural-selection",
+          "learning_objective": "To see how dominant and recessive traits are inherited and how variation spreads through a population over generations."
+        },
+        {
+          "experiment_title": "From Genes to Proteins: Expression of Traits",
+          "simulation_name": "Gene Expression Basics",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/gene-expression-basics",
+          "learning_objective": "To understand how genes are transcribed and translated into proteins that determine traits."
+        }
+      ]
+    },
+    {
+      "chapter_number": 9,
+      "chapter_name": "Light – Reflection and Refraction",
+      "experiments": [
+        {
+          "experiment_title": "Image Formation by Mirrors and Lenses",
+          "simulation_name": "Geometric Optics",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/geometric-optics",
+          "learning_objective": "To locate images formed by mirrors and lenses using object distance, focal length and ray diagrams."
+        },
+        {
+          "experiment_title": "Refraction of Light and Snell's Law",
+          "simulation_name": "Bending Light",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/bending-light",
+          "learning_objective": "To investigate reflection and refraction at a boundary, the refractive index and total internal reflection."
+        }
+      ]
+    },
+    {
+      "chapter_number": 10,
+      "chapter_name": "The Human Eye and the Colourful World",
+      "experiments": [
+        {
+          "experiment_title": "Eye as a Lens System: Accommodation and Defects of Vision",
+          "simulation_name": "Geometric Optics",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/geometric-optics",
+          "learning_objective": "To model the eye lens, study focal length changes and see how converging and diverging lenses correct vision defects."
+        },
+        {
+          "experiment_title": "Dispersion of Light Through a Prism",
+          "simulation_name": "Bending Light",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/bending-light",
+          "learning_objective": "To observe how different wavelengths bend by different amounts, explaining dispersion and the spectrum."
+        },
+        {
+          "experiment_title": "Colour Perception and Mixing of Light",
+          "simulation_name": "Color Vision",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/color-vision",
+          "learning_objective": "To understand how mixing red, green and blue light produces different colours as perceived by the eye."
+        }
+      ]
+    },
+    {
+      "chapter_number": 11,
+      "chapter_name": "Electricity",
+      "experiments": [
+        {
+          "experiment_title": "Building Series and Parallel Circuits",
+          "simulation_name": "Circuit Construction Kit: DC",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc",
+          "learning_objective": "To build circuits and measure current and potential difference, and to compare resistors in series and in parallel."
+        },
+        {
+          "experiment_title": "Verifying Ohm's Law",
+          "simulation_name": "Ohm's Law",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/ohms-law",
+          "learning_objective": "To see how current varies with voltage and resistance according to V = IR."
+        },
+        {
+          "experiment_title": "Factors Affecting Resistance of a Conductor",
+          "simulation_name": "Resistance in a Wire",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/resistance-in-a-wire",
+          "learning_objective": "To explore how resistance depends on resistivity, length and cross-sectional area."
+        },
+        {
+          "experiment_title": "Battery, Resistor and Heating Effect of Current",
+          "simulation_name": "Battery-Resistor Circuit",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/battery-resistor-circuit",
+          "learning_objective": "To visualise electron flow in a simple circuit and relate voltage, current and resistance."
+        }
+      ]
+    },
+    {
+      "chapter_number": 12,
+      "chapter_name": "Magnetic Effects of Electric Current",
+      "experiments": [
+        {
+          "experiment_title": "Magnetic Field of a Bar Magnet",
+          "simulation_name": "Magnet and Compass",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/magnet-and-compass",
+          "learning_objective": "To map magnetic field lines and see how a compass aligns with the field of a magnet."
+        },
+        {
+          "experiment_title": "Magnetic Field Due to Current-Carrying Conductor and Electromagnets",
+          "simulation_name": "Magnets and Electromagnets",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/magnets-and-electromagnets",
+          "learning_objective": "To investigate how current, number of coil turns and battery polarity affect the strength and direction of an electromagnet."
+        },
+        {
+          "experiment_title": "Electromagnetic Induction",
+          "simulation_name": "Faraday's Law",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/faradays-law",
+          "learning_objective": "To observe induced current when a magnet moves relative to a coil."
+        },
+        {
+          "experiment_title": "Electric Generator Principle",
+          "simulation_name": "Generator",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/generator",
+          "learning_objective": "To see how rotating a magnet near a coil produces current, the working principle of an AC generator."
+        }
+      ]
+    },
+    {
+      "chapter_number": 13,
+      "chapter_name": "Our Environment",
+      "experiments": [
+        {
+          "experiment_title": "Greenhouse Effect and Environmental Impact",
+          "simulation_name": "Greenhouse Effect",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/greenhouse-effect",
+          "learning_objective": "To understand how greenhouse gases trap heat and affect Earth's temperature."
+        },
+        {
+          "experiment_title": "Energy Flow and Transformation (Foundation for Food Chains)",
+          "simulation_name": "Energy Forms and Changes",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/energy-forms-and-changes",
+          "learning_objective": "To track how energy is transferred and transformed, with losses as heat, as a foundation for energy flow between trophic levels."
+        }
+      ]
+    }
+  ],
+  "subject_mathematics": [
+    {
+      "chapter_number": 1,
+      "chapter_name": "Real Numbers",
+      "experiments": []
+    },
+    {
+      "chapter_number": 2,
+      "chapter_name": "Polynomials",
+      "experiments": [
+        {
+          "experiment_title": "Visualizing Zeroes and Parabolas of Quadratic Polynomials",
+          "simulation_name": "Graphing Quadratics",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/graphing-quadratics",
+          "learning_objective": "To observe how changing the coefficients a, b, and c transforms the parabolic graph and shifts its x-intercepts (zeroes)."
+        },
+        {
+          "experiment_title": "Graphs of Linear Polynomials and Their Zero",
+          "simulation_name": "Graphing Lines",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/graphing-lines",
+          "learning_objective": "To see how a linear polynomial graph crosses the x-axis at its zero."
+        }
+      ]
+    },
+    {
+      "chapter_number": 3,
+      "chapter_name": "Pair of Linear Equations in Two Variables",
+      "experiments": [
+        {
+          "experiment_title": "Graphical Solution of Linear Equations",
+          "simulation_name": "Graphing Lines",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/graphing-lines",
+          "learning_objective": "To graph linear equations and understand slope and intercepts, which determine whether two lines intersect, are parallel or coincide."
+        },
+        {
+          "experiment_title": "Balancing Equations by Elimination and Substitution Reasoning",
+          "simulation_name": "Equality Explorer",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/equality-explorer",
+          "learning_objective": "To keep both sides of an equation balanced while performing operations, the idea behind elimination and substitution."
+        }
+      ]
+    },
+    {
+      "chapter_number": 4,
+      "chapter_name": "Quadratic Equations",
+      "experiments": [
+        {
+          "experiment_title": "Roots of Quadratic Equations from Parabola Intercepts",
+          "simulation_name": "Graphing Quadratics",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/graphing-quadratics",
+          "learning_objective": "To connect the roots of ax^2 + bx + c = 0 to x-intercepts and see how the discriminant relates to the number of real roots."
+        },
+        {
+          "experiment_title": "Factorisation and Completing the Square Using Area Models",
+          "simulation_name": "Area Model Algebra",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/area-model-algebra",
+          "learning_objective": "To use area models to expand and factor algebraic expressions, supporting factorisation and completing the square."
+        }
+      ]
+    },
+    {
+      "chapter_number": 5,
+      "chapter_name": "Arithmetic Progressions",
+      "experiments": [
+        {
+          "experiment_title": "AP as a Linear Function of n (Closest Conceptual Match)",
+          "simulation_name": "Graphing Lines",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/graphing-lines",
+          "learning_objective": "To see that a constant common difference corresponds to a constant slope, so the nth term of an AP behaves as a linear function of n."
+        }
+      ]
+    },
+    {
+      "chapter_number": 6,
+      "chapter_name": "Triangles",
+      "experiments": [
+        {
+          "experiment_title": "Similar Figures and Proportional Sides",
+          "simulation_name": "Proportion Playground",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/proportion-playground",
+          "learning_objective": "To explore ratios and proportional scaling, the basis for similarity of triangles and the Basic Proportionality Theorem."
+        },
+        {
+          "experiment_title": "Right Triangles and the Pythagoras Theorem",
+          "simulation_name": "Trig Tour",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/trig-tour",
+          "learning_objective": "To explore the relationship among the sides of a right triangle, including the Pythagorean relation, using a unit circle."
+        }
+      ]
+    },
+    {
+      "chapter_number": 7,
+      "chapter_name": "Coordinate Geometry",
+      "experiments": [
+        {
+          "experiment_title": "Plotting Points and Lines on the Cartesian Plane",
+          "simulation_name": "Graphing Lines",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/graphing-lines",
+          "learning_objective": "To plot points and lines on the coordinate plane and relate coordinates to distance and slope."
+        },
+        {
+          "experiment_title": "Vectors and Coordinates on a Plane",
+          "simulation_name": "Vector Addition",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/vector-addition",
+          "learning_objective": "To represent displacements using components on the x-y plane and understand distance between points."
+        }
+      ]
+    },
+    {
+      "chapter_number": 8,
+      "chapter_name": "Introduction to Trigonometry",
+      "experiments": [
+        {
+          "experiment_title": "Trigonometric Ratios and the Unit Circle",
+          "simulation_name": "Trig Tour",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/trig-tour",
+          "learning_objective": "To see how sine, cosine and tangent change with angle and to verify basic identities such as sin^2 + cos^2 = 1."
+        }
+      ]
+    },
+    {
+      "chapter_number": 9,
+      "chapter_name": "Some Applications of Trigonometry",
+      "experiments": [
+        {
+          "experiment_title": "Angles of Elevation/Depression and Heights via Trigonometric Ratios",
+          "simulation_name": "Trig Tour",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/trig-tour",
+          "learning_objective": "To use trigonometric ratios of an angle to find unknown heights and distances in right triangles."
+        },
+        {
+          "experiment_title": "Resolving Quantities Into Components at an Angle",
+          "simulation_name": "Vector Addition",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/vector-addition",
+          "learning_objective": "To apply sine and cosine to resolve a vector into horizontal and vertical components."
+        }
+      ]
+    },
+    {
+      "chapter_number": 10,
+      "chapter_name": "Circles",
+      "experiments": []
+    },
+    {
+      "chapter_number": 11,
+      "chapter_name": "Areas Related to Circles",
+      "experiments": [
+        {
+          "experiment_title": "Understanding Area by Building Shapes (Closest Foundational Match)",
+          "simulation_name": "Area Builder",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/area-builder",
+          "learning_objective": "To build shapes and compare area and perimeter, as a foundation for the area of sectors and segments."
+        }
+      ]
+    },
+    {
+      "chapter_number": 12,
+      "chapter_name": "Surface Areas and Volumes",
+      "experiments": [
+        {
+          "experiment_title": "Volume, Mass and Density of Solids",
+          "simulation_name": "Density",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/density",
+          "learning_objective": "To relate the volume of objects to displaced liquid and to compare mass, volume and density of solids."
+        },
+        {
+          "experiment_title": "Area of Regions by Composition (Closest Foundational Match)",
+          "simulation_name": "Area Builder",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/area-builder",
+          "learning_objective": "To compose complex regions from simpler ones and compute their area, as in combinations of solids."
+        }
+      ]
+    },
+    {
+      "chapter_number": 13,
+      "chapter_name": "Statistics",
+      "experiments": [
+        {
+          "experiment_title": "Mean as a Balance Point and Sharing Equally",
+          "simulation_name": "Mean: Share and Balance",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/mean-share-and-balance",
+          "learning_objective": "To understand the mean as the value obtained by leveling out or balancing a data set."
+        },
+        {
+          "experiment_title": "Median, Mode and Spread of Data",
+          "simulation_name": "Center and Variability",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/center-and-variability",
+          "learning_objective": "To explore measures of central tendency (mean, median, mode) and how data distribution affects them."
+        }
+      ]
+    },
+    {
+      "chapter_number": 14,
+      "chapter_name": "Probability",
+      "experiments": [
+        {
+          "experiment_title": "Experimental vs Theoretical Probability",
+          "simulation_name": "Plinko Probability",
+          "simulation_url": "https://phet.colorado.edu/en/simulations/plinko-probability",
+          "learning_objective": "To run many random trials and compare experimental frequencies with theoretical probabilities."
+        }
+      ]
+    }
+  ]
+}
