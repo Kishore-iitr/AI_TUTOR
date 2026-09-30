@@ -779,10 +779,51 @@
             chatUI.style.display = 'flex';
             document.getElementById('putty-icon').style.display = 'none';
             chatInput.focus();
+            updateRealAllowance();
         }
     }
 
-    // Removed mock allowance as we only use 100% free models now
+    async function updateRealAllowance() {
+        try {
+            // Check if user is authenticated with Puter
+            if (puter.isSignedIn && puter.isSignedIn()) {
+                const usage = await puter.auth.getMonthlyUsage();
+                if (usage && usage.allowanceInfo) {
+                    const total = usage.allowanceInfo.monthUsageAllowance;
+                    const remaining = usage.allowanceInfo.remaining;
+                    if (total > 0) {
+                        const pct = Math.max(0, Math.round((remaining / total) * 100));
+                        let color = '#4ade80'; // Green
+                        if (pct <= 50) color = '#facc15'; // Yellow
+                        if (pct <= 20) color = '#f87171'; // Red
+                        
+                        const circle = document.getElementById('usage-circle');
+                        circle.style.background = `conic-gradient(${color} ${pct}%, #1e293b 0)`;
+                        document.getElementById('usage-text').innerText = `${pct}%`;
+                    }
+                }
+            } else {
+                // Not signed in yet, we can try calling getMonthlyUsage anyway as Puter.js might auto-auth
+                const usage = await puter.auth.getMonthlyUsage();
+                if (usage && usage.allowanceInfo) {
+                    const total = usage.allowanceInfo.monthUsageAllowance;
+                    const remaining = usage.allowanceInfo.remaining;
+                    if (total > 0) {
+                        const pct = Math.max(0, Math.round((remaining / total) * 100));
+                        let color = '#4ade80';
+                        if (pct <= 50) color = '#facc15';
+                        if (pct <= 20) color = '#f87171';
+                        
+                        const circle = document.getElementById('usage-circle');
+                        circle.style.background = `conic-gradient(${color} ${pct}%, #1e293b 0)`;
+                        document.getElementById('usage-text').innerText = `${pct}%`;
+                    }
+                }
+            }
+        } catch(e) {
+            console.log("Puter usage limit check failed or not authenticated yet.", e);
+        }
+    }
 
     function appendMsg(sender, text) {
         const div = document.createElement('div');
@@ -880,6 +921,9 @@
             
             // Save chat history
             saveChat();
+            
+            // Fetch updated real allowance from Puter
+            updateRealAllowance();
         }
     }
 
