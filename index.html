@@ -536,6 +536,7 @@
                 <div class="usage-circle" id="usage-circle" title="Credits managed dynamically by your Puter.com account" style="background: conic-gradient(#4ade80 100%, #1e293b 0);">
                     <div class="usage-inner" id="usage-text" style="font-size: 1rem;">♾️</div>
                 </div>
+                <button onclick="clearChat()" title="Clear Chat History" style="font-size: 1.1rem;">🗑️</button>
                 <button onclick="toggleChat()" title="Close Chat">✖</button>
             </div>
         </div>
@@ -817,6 +818,14 @@
         } catch(e) {
             console.log("Puter usage limit check failed or not authenticated yet.", e);
         }
+    }
+
+    function clearChat() {
+        localStorage.removeItem('chatHistoryHtml');
+        localStorage.removeItem('chatContext');
+        document.getElementById('chat-history').innerHTML = `<div class="msg msg-bot">Hi ! ask your doubts</div>`;
+        const subjectName = currentSubject === 'science' ? 'Science' : 'Mathematics';
+        chatContext = `System: You are Putty, an expert AI tutor for CBSE Class 10 ${subjectName}. A student is reading their notes and asking you questions. Answer clearly, accurately, and format your output cleanly using Markdown and LaTeX (use $$...$$ for math formulas).\n\n`;
     }
 
     function appendMsg(sender, text) {
