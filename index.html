@@ -493,9 +493,6 @@
     <!-- Mobile Menu Button -->
     <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">Loading Dataset...</div>
-
     <!-- Sidebar -->
     <div id="sidebar">
         <div class="sidebar-header">
@@ -610,8 +607,6 @@
     async function loadSubject(subject) {
         currentSubject = subject;
         try {
-            document.getElementById('loading-overlay').style.display = 'flex';
-            
             if (!datasetCache[subject]) {
                 const filename = subject === 'science' ? 'cbse_science_scraped_dataset.json' : 'cbse_maths_scraped_dataset.json';
                 const response = await fetch(filename);
@@ -634,11 +629,10 @@
                 chatContext = `System: You are Putty, an expert AI tutor for CBSE Class 10 ${subjectName}. A student is reading their notes and asking you questions. Answer clearly, accurately, and format your output cleanly using Markdown and LaTeX (use $$...$$ for math formulas).\n\n`;
             }
 
-            document.getElementById('loading-overlay').style.display = 'none';
         } catch (error) {
             console.error(error);
             const sub = subject === 'science' ? 'Science' : 'Mathematics';
-            document.getElementById('loading-overlay').innerHTML = `<div style="text-align:center;">Error loading ${sub} dataset.<br><span style="font-size:1rem; font-weight:normal; color:#334155;">Make sure the scraper has finished generating the JSON file.</span></div>`;
+            document.getElementById('content-container').innerHTML = `<div style="text-align:center; padding: 40px;">Error loading ${sub} dataset.<br><span style="font-size:1rem; font-weight:normal; color:#334155;">Make sure the scraper has finished generating the JSON file.</span></div>`;
         }
     }
 
