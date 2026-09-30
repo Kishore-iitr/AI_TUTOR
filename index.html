@@ -644,7 +644,8 @@
         
         let subjectSims = [];
         if (simulationsData) {
-            subjectSims = simulationsData['subject_' + currentSubject] || [];
+            const subjectKey = currentSubject === 'maths' ? 'subject_mathematics' : 'subject_' + currentSubject;
+            subjectSims = simulationsData[subjectKey] || [];
         }
 
         dataset.chapters.forEach((chapter, index) => {
