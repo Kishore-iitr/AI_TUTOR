@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CBSE Class 10 Science Notes</title>
-    
+
     <!-- Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     
@@ -32,6 +32,27 @@
             --text-light: #f8fafc;
             --text-muted: #64748b;
         }
+
+        [data-theme="dark"] {
+            --primary: #60a5fa;
+            --primary-light: #38bdf8;
+            --bg-color: #111827;
+            --text-dark: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+        [data-theme="dark"] #main-content { background: #111827; }
+        [data-theme="dark"] .content-container { background: #1f2937; }
+        [data-theme="dark"] h3, [data-theme="dark"] p,
+        [data-theme="dark"] ul, [data-theme="dark"] ol { color: #cbd5e1; }
+        [data-theme="dark"] .data-table th { background: #334155; color: #bfdbfe; }
+        [data-theme="dark"] .data-table tr:nth-child(even) { background: #293548; }
+        [data-theme="dark"] .data-table td { border-color: #475569; }
+        [data-theme="dark"] #chat-history { background: #111827; }
+        [data-theme="dark"] .msg-bot, [data-theme="dark"] .chat-input-area { background: #1f2937; color: #e2e8f0; }
+        [data-theme="dark"] .input-wrapper { background: #111827; border-color: #64748b; }
+        [data-theme="dark"] #chat-input { color: #e2e8f0; }
+        [data-theme="dark"] .upload-preview { background: #334155; color: #cbd5e1; }
+        [data-theme="dark"] .lab-card { background: linear-gradient(135deg, #263b5c, #1f2937); border-color: #4b76b8; }
 
         @keyframes spin {
             100% { transform: rotate(360deg); }
@@ -565,9 +586,229 @@
                 width: 100vw;
             }
         }
+        /* Lab Cards Grid */
+        .lab-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .lab-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .lab-card:hover {
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(96, 165, 250, 0.15);
+        }
+        .lab-card-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .lab-card-info h4 {
+            margin: 0 0 4px 0;
+            color: #e2e8f0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .lab-card-info p {
+            margin: 0;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+        .lab-card-badge {
+            display: inline-block;
+            background: #1e3a5f;
+            color: #93c5fd;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* News button in sidebar */
+        .news-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: calc(100% - 40px);
+            margin: 10px 20px 0 20px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #1e293b;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .news-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .sidebar-tools {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px 0;
+        }
+        .sidebar-tools button {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #1f2937;
+            color: #e2e8f0;
+            font: inherit;
+            font-size: .82rem;
+            cursor: pointer;
+        }
+        .sidebar-tools button:hover { background: #334155; }
+        .top-actions {
+            position: fixed;
+            top: 16px;
+            right: 22px;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-action {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: rgba(255,255,255,.95);
+            color: #334155;
+            min-height: 34px;
+            padding: 7px 10px;
+            font: inherit;
+            font-size: .82rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(15,23,42,.12);
+        }
+        .top-action.settings {
+            width: 36px;
+            padding: 7px 0;
+            font-size: 1rem;
+        }
+        .top-action:hover { background: #f8fafc; transform: translateY(-1px); }
+        [data-theme="dark"] .top-action {
+            background: rgba(30,41,59,.96);
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+        [data-theme="dark"] .top-action:hover { background: #334155; }
+        @media (max-width: 600px) {
+            .top-actions { top: 10px; right: 10px; }
+            .top-action.news { font-size: .75rem; padding-inline: 8px; }
+        }
+        .labs-intro {
+            background: linear-gradient(135deg, #eff6ff, #f8fafc);
+            border: 1px solid #bfdbfe;
+            border-radius: 14px;
+            padding: 22px 24px;
+            margin-bottom: 20px;
+        }
+        .labs-intro h2 { margin: 0 0 8px; color: #1e3a8a; }
+        .labs-intro p { margin: 0; font-size: .98rem; }
+        .labs-catalogue {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .lab-card { min-height: 180px; flex-direction: column; }
+        .lab-card .lab-card-icon { font-size: 2rem; }
+        .lab-card-action {
+            margin-top: auto;
+            color: #93c5fd;
+            font-weight: 700;
+            font-size: .84rem;
+        }
+        [data-theme="dark"] .labs-intro { background: #1e293b; border-color: #475569; }
+        [data-theme="dark"] .labs-intro h2 { color: #bfdbfe; }
+        [data-theme="dark"] .chapter-btn:hover,
+        [data-theme="dark"] .chapter-btn.active { background-color: #263b5c; border-left-color: #60a5fa; }
+        [data-theme="dark"] .subtopic-btn:hover,
+        [data-theme="dark"] .subtopic-btn.active { background-color: #233552; color: #bfdbfe; }
+        [data-theme="dark"] .lab-card:hover { border-color: #93c5fd; box-shadow: 0 8px 25px rgba(96,165,250,.25); }
+
+        /* Upload button style */
+        .upload-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .upload-btn:hover {
+            color: var(--primary);
+            background: #e2e8f0;
+        }
+        
+        /* Upload preview */
+        .upload-preview {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+        .upload-preview img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: none;
+        }
+        .upload-preview .remove-upload {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .upload-preview .remove-upload:hover {
+            color: #ef4444;
+            background: #fee2e2;
+        }
     </style>
 </head>
 <body>
+
+    <div class="top-actions" aria-label="Quick actions">
+        <button class="top-action news" type="button" onclick="window.open('https://briefly-student-news-vercel.vercel.app/','_blank')" title="Open Student News in a new tab">
+            📰 News
+        </button>
+        <button class="top-action settings" id="theme-toggle" type="button" onclick="toggleTheme()" title="Change theme" aria-label="Change theme">
+            ⚙
+        </button>
+    </div>
 
     <!-- Mobile Menu Button -->
     <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
@@ -582,6 +823,7 @@
             <select id="subject-select" onchange="switchSubject(this.value)" style="width: 100%; padding: 10px; margin-top: 12px; border-radius: 8px; background: #1f2937; color: white; border: 1px solid #374151; font-family: inherit; font-size: 0.95rem; cursor: pointer; outline: none;">
                 <option value="science">Science Notes & simulations</option>
                 <option value="maths">Maths Notes & simulations</option>
+                <option value="labs56">🧪 Classes 5-6 Interactive Labs</option>
             </select>
         </div>
         <div id="chapter-list">
@@ -629,6 +871,10 @@
                         <option value="gpt-4o">GPT-4o (10x)</option>
                     </select>
                     <div style="display: flex; align-items: center; gap: 4px;">
+                        <input type="file" id="file-upload" accept="image/*,.txt,.md,.csv,.json,.pdf,.doc,.docx" hidden>
+                        <button id="upload-btn" class="upload-btn" type="button" title="Upload a picture or document" aria-label="Upload a picture or document">
+                            📎
+                        </button>
                         <button id="mic-btn" class="icon-btn" onclick="toggleSpeech()" title="Voice Typing">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
@@ -660,6 +906,34 @@
     let simulationsData = null;
     let currentSubject = 'science';
     let chatContext = "";
+    let selectedAttachment = null;
+
+    const labExperiments = [
+        {
+            icon: '🌬️',
+            title: 'The Pressure Engine',
+            level: 'Classes 5-6 · Air and breathing',
+            description: 'Explore how the chest, lungs and air pressure work together during breathing.',
+            objective: 'Change the breathing controls and observe how air moves in and out of the lungs.',
+            url: 'labs/pressure-engine.html'
+        },
+        {
+            icon: '⚡',
+            title: 'The Charge Carousel',
+            level: 'Classes 5-6 · Electric current',
+            description: 'Build a simple circuit and see how a cell, switch and bulb affect moving charges.',
+            objective: 'Close the switch, change the number of cells and compare what happens to the bulb.',
+            url: 'labs/charge-carousel.html'
+        },
+        {
+            icon: '⚛️',
+            title: 'The Atom Ledger',
+            level: 'Classes 5-6 · Matter and atoms',
+            description: 'Balance atoms in simple chemical reactions using an interactive weighing bench.',
+            objective: 'Adjust the numbers in front of each formula until both sides have the same atoms and mass.',
+            url: 'labs/atom-ledger.html'
+        }
+    ];
 
     function toggleSidebar() {
         if (window.innerWidth <= 1024) {
@@ -669,6 +943,19 @@
         }
     }
 
+    function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem('theme', theme);
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.textContent = '⚙';
+        themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        themeToggle.setAttribute('aria-label', themeToggle.title);
+    }
+
+    function toggleTheme() {
+        applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+    }
+
     // Marked.js config
     marked.use({ breaks: true, gfm: true });
     if (window.markedKatex) {
@@ -676,6 +963,7 @@
     }
 
     async function init() {
+        applyTheme(localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
         try {
             const simRes = await fetch('sci_math_simulations.json');
             if (simRes.ok) {
@@ -706,7 +994,8 @@
             }
         }
 
-        await loadSubject('science');
+        const requestedSubject = new URLSearchParams(window.location.search).get('subject');
+        await loadSubject(requestedSubject === 'labs56' ? 'labs56' : 'science');
     }
 
     async function switchSubject(subject) {
@@ -714,8 +1003,73 @@
         await loadSubject(subject);
     }
 
+    function buildLabsSidebar() {
+        const listDiv = document.getElementById('chapter-list');
+        listDiv.innerHTML = '';
+        const heading = document.createElement('div');
+        heading.className = 'chapter-btn active';
+        heading.textContent = '🧪 Interactive experiments';
+        listDiv.appendChild(heading);
+        labExperiments.forEach((lab, index) => {
+            const button = document.createElement('button');
+            button.className = 'subtopic-btn active';
+            button.textContent = `${lab.icon} ${index + 1}. ${lab.title}`;
+            button.onclick = () => openLab(lab);
+            listDiv.appendChild(button);
+        });
+    }
+
+    function renderLabsCatalogue() {
+        const cards = labExperiments.map(lab => `
+            <article class="lab-card" role="button" tabindex="0" data-lab-url="${lab.url}">
+                <div class="lab-card-icon">${lab.icon}</div>
+                <div class="lab-card-info">
+                    <h4>${lab.title}</h4>
+                    <span class="lab-card-badge">${lab.level}</span>
+                    <p>${lab.description}</p>
+                    <p><strong>Try this:</strong> ${lab.objective}</p>
+                </div>
+                <div class="lab-card-action">Open experiment →</div>
+            </article>
+        `).join('');
+        const container = document.getElementById('content-container');
+        container.innerHTML = `
+            <div class="labs-intro">
+                <h2>Choose an experiment</h2>
+                <p>Read the short goal, select one lab, and use its controls to carry out the experiment step by step.</p>
+            </div>
+            <div class="labs-catalogue">${cards}</div>
+        `;
+        container.querySelectorAll('.lab-card').forEach(card => {
+            const lab = labExperiments.find(item => item.url === card.dataset.labUrl);
+            card.addEventListener('click', () => openLab(lab));
+            card.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openLab(lab);
+                }
+            });
+        });
+    }
+
+    function openLab(lab) {
+        if (!lab) return;
+        window.location.href = lab.url;
+    }
+
     async function loadSubject(subject) {
         currentSubject = subject;
+        const subjectSelect = document.getElementById('subject-select');
+        subjectSelect.value = subject;
+        document.querySelector('.sidebar-header h2').textContent = subject === 'labs56' ? 'Classes 5-6 Labs' : 'CBSE Class 10';
+
+        if (subject === 'labs56') {
+            dataset = null;
+            buildLabsSidebar();
+            renderLabsCatalogue();
+            return;
+        }
+
         try {
             if (!datasetCache[subject]) {
                 const filename = subject === 'science' ? 'cbse_science_scraped_dataset.json' : 'cbse_maths_scraped_dataset.json';
@@ -723,7 +1077,7 @@
                 if (!response.ok) throw new Error("File not found");
                 datasetCache[subject] = await response.json();
             }
-            
+
             dataset = datasetCache[subject];
             buildSidebar();
             
@@ -875,6 +1229,53 @@
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send');
     const chatLoading = document.getElementById('chat-loading');
+    const fileUpload = document.getElementById('file-upload');
+    const uploadBtn = document.getElementById('upload-btn');
+    const inputWrapper = document.querySelector('.input-wrapper');
+
+    uploadBtn.addEventListener('click', () => fileUpload.click());
+    fileUpload.addEventListener('change', handleAttachment);
+
+    async function handleAttachment(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        selectedAttachment = { file, dataUrl: null, text: '' };
+        if (file.type.startsWith('image/')) {
+            selectedAttachment.dataUrl = await readAsDataUrl(file);
+        } else if (file.type === 'text/plain' || /\.(txt|md|csv|json)$/i.test(file.name)) {
+            selectedAttachment.text = await file.text();
+        } else {
+            selectedAttachment.text = `The student attached "${file.name}". It is a document format that may need to be opened separately; answer from the filename and any question they provide, and explain if its contents are unavailable.`;
+        }
+        renderAttachmentPreview(file);
+        fileUpload.value = '';
+    }
+
+    function readAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Could not read the image.'));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderAttachmentPreview(file) {
+        const old = document.getElementById('upload-preview');
+        if (old) old.remove();
+        const preview = document.createElement('div');
+        preview.id = 'upload-preview';
+        preview.className = 'upload-preview';
+        preview.innerHTML = `<span>📎 ${file.name}</span><button class="remove-upload" type="button" aria-label="Remove attachment">×</button>`;
+        preview.querySelector('button').onclick = clearAttachment;
+        inputWrapper.insertBefore(preview, inputWrapper.firstChild);
+    }
+
+    function clearAttachment() {
+        selectedAttachment = null;
+        const preview = document.getElementById('upload-preview');
+        if (preview) preview.remove();
+    }
     
     let abortGeneration = false;
     let isGenerating = false;
@@ -1002,14 +1403,19 @@
     async function sendChat() {
         if (isGenerating) return;
         const text = chatInput.value.trim();
-        if (!text) return;
+        if (!text && !selectedAttachment) return;
+        const attachment = selectedAttachment;
+        const attachmentLabel = attachment ? `\n📎 ${attachment.file.name}` : '';
+        const documentContext = attachment && attachment.text ? `\n\nAttached document text:\n${attachment.text.slice(0, 12000)}` : '';
+        const promptText = `${text || 'Please explain what is shown in this attachment.'}${attachmentLabel}${documentContext}`;
         
-        appendMsg('user', text);
+        appendMsg('user', promptText);
         chatInput.value = '';
+        clearAttachment();
         chatInput.disabled = true;
         chatLoading.style.display = 'block';
 
-        chatContext += `User: ${text}\nPutty:`;
+        chatContext += `User: ${promptText}\nPutty:`;
 
         const modelSelect = document.getElementById('model-select');
         const selectedModel = modelSelect.value;
@@ -1027,7 +1433,16 @@
         `;
 
         try {
-            const response = await puter.ai.chat(chatContext, { model: selectedModel, stream: true });
+            const request = attachment && attachment.dataUrl
+                ? [
+                    { role: 'system', content: 'You are Putty, a clear and encouraging school science tutor. Study the attached image and answer the student question accurately.' },
+                    { role: 'user', content: [
+                        { type: 'text', text: text || 'Please explain what is shown in this image.' },
+                        { type: 'image_url', image_url: { url: attachment.dataUrl } }
+                    ] }
+                ]
+                : chatContext;
+            const response = await puter.ai.chat(request, { model: selectedModel || 'openrouter/free', stream: true });
             
             // Create a new empty message div for the bot's streaming response
             const div = document.createElement('div');
@@ -1117,7 +1532,6 @@
         localStorage.setItem('chatContext', chatContext);
     }
 
-    chatSendBtn.addEventListener('click', sendChat);
     chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChat(); });
 
     // --- Speech Recognition ---

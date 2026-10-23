@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Charge Carousel</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@110,500;110,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+    <style>
+      :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+      body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
+      img{max-width:100%}
+      [hidden]{display:none!important}
+    </style>
+<style>
+/* Layout: one living circuit bench on top, a chapter panel under it — same dark instrument world as The Pressure Engine */
+:root{
+  --bg:#07080d; --panel:#10131b; --panel2:#171c26; --line:#262e3c;
+  --ink:#eceff6; --muted:#97a2b5;
+  --copper:#e2923f; --hot:#ffd166; --cold:#5d7aa8; --good:#5fd8a4; --bad:#ff6b57;
+  --display:"Archivo",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --deva:"Noto Sans Devanagari",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5}
+.app{max-width:1100px; margin:0 auto; padding-inline:14px; padding-block:0 40px}
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:linear-gradient(var(--bg) 72%,transparent); padding-block:12px 8px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.brand{font-family:var(--display); font-weight:700; font-size:17px; letter-spacing:-.01em}
+.brand em{font-style:normal; color:var(--hot)}
+.kicker{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+.rail{display:flex; gap:5px; margin-left:auto}
+.rail button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;padding:0}
+.rail button[data-on]{border-color:var(--copper); color:var(--copper)}
+.rail button[aria-current="true"]{background:var(--hot); border-color:var(--hot); color:#1a1304; font-weight:600}
+.split{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:18px; align-items:start}
+@media(max-width:860px){.split{grid-template-columns:1fr; gap:12px}}
+.stagewrap{position:sticky; top:calc(env(safe-area-inset-top,0px) + 52px); background:radial-gradient(120% 90% at 50% 10%,#161b26 0%,#07080d 72%); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+@media(max-width:860px){
+  .topbar{position:static; background:none; padding-block:10px 6px}
+  .stagewrap{top:calc(env(safe-area-inset-top,0px) + 6px)}
+  .rail{margin-left:0; width:100%; flex-wrap:wrap}
+}
+canvas{display:block; width:100%; height:auto; touch-action:none; cursor:pointer}
+.hud{display:none; gap:1px; background:var(--line); border-top:1px solid var(--line)}
+.hud .gauge{flex:1 1 0; min-width:0}
+.gauge{background:var(--panel); padding:7px 10px}
+.gauge span{display:block; font-family:var(--mono); font-size:8.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+.gauge b{font-family:var(--mono); font-size:15px; font-weight:500; font-variant-numeric:tabular-nums}
+.panel{display:flex; flex-direction:column; gap:14px; padding-block:14px 0}
+h1{font-family:var(--display); font-weight:700; font-size:clamp(25px,5.2vw,34px); line-height:1.08; letter-spacing:-.02em; margin:0; text-wrap:balance}
+h1 em{font-style:normal; color:var(--hot)}
+.body{color:#c6ccda; max-width:56ch}
+.body strong{color:var(--ink)}
+.hi{font-family:var(--deva); color:var(--muted); font-size:14px}
+.task{border:1px solid var(--line); border-left:3px solid var(--copper); background:var(--panel); border-radius:0 8px 8px 0; padding:11px 13px}
+.task.done{border-left-color:var(--good)}
+.task .t{font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--copper)}
+.task.done .t{color:var(--good)}
+.task p{margin:3px 0 0; font-size:14px; color:#c6ccda}
+.ctrls{display:flex; flex-direction:column; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:13px}
+.ctrl label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+.ctrl label b{color:var(--ink); font-weight:500}
+input[type=range]{width:100%; accent-color:var(--copper)}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap}
+button.b{font:inherit; cursor:pointer; border-radius:6px; padding:9px 14px; font-size:14px; font-weight:500; border:1px solid var(--line); background:var(--panel2); color:var(--ink)}
+button.b.key{background:var(--hot); border-color:var(--hot); color:#1a1304; font-weight:600}
+button.b.ghost{background:transparent}
+button.b:disabled{opacity:.4; cursor:not-allowed}
+button.b:focus-visible,.rail button:focus-visible{outline:2px solid var(--copper); outline-offset:2px}
+button.b.right{border-color:var(--good); color:var(--good)}
+button.b.wrong{border-color:var(--bad); color:var(--bad)}
+.opt{text-align:left; width:100%; display:flex; gap:10px; align-items:flex-start; padding:11px 13px}
+.opt i{font-family:var(--mono); font-size:11px; color:var(--muted); font-style:normal; padding-top:2px}
+.verdict{font-size:14px; color:#c6ccda; border-top:1px solid var(--line); padding-top:11px}
+.verdict b{color:var(--ink)}
+.nav{display:flex; gap:8px; align-items:center; padding-block:4px 0}
+.nav .sp{flex:1}
+.mini{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+table{width:100%; border-collapse:collapse; font-size:13.5px}
+th,td{text-align:left; padding:5px 4px; border-bottom:1px solid var(--line)}
+th{font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:500}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="kicker">Class 7 · Electric current and its effects</div>
+      <div class="brand">The Charge <em>Carousel</em></div>
+    </div>
+    <div class="rail" id="rail"></div>
+  </div>
+
+  <div class="split">
+    <div class="stagewrap">
+      <canvas id="cv" width="1000" height="720" aria-label="Live circuit with moving charges"></canvas>
+      <div class="hud" id="hud"></div>
+    </div>
+    <div class="panel">
+      <h1 id="ttl"></h1>
+      <div class="body" id="txt"></div>
+      <div id="extra"></div>
+      <div class="task" id="task"><span class="t" id="taskT">Do this</span><p id="taskP"></p></div>
+      <div class="nav">
+        <button class="b ghost" id="back">Back to experiments</button>
+        <span class="mini" id="pos"></span>
+        <span class="sp"></span>
+        <button class="b key" id="next">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const cv=$('#cv'), g=cv.getContext('2d');
+const VW=1000,VH=720;
+const C={copper:'#e2923f',hot:'#ffd166',cold:'#5d7aa8',ink:'#eceff6',muted:'#97a2b5',line:'#2b3443',bad:'#ff6b57',good:'#5fd8a4'};
+const done={};
+const S={scene:'wire',on:false,cells:1,bulbs:1,cut:null,t:0,
+  gateA:0,gateB:0,gateT:0,gateRun:false,
+  sample:null,samplePred:null,tested:[]};
+
+/* ---------- loop geometry: rounded rectangle sampled into points ---------- */
+const BOX={x:170,y:170,w:660,h:400,r:56};
+const PTS=[];
+(function build(){
+  const {x,y,w,h,r}=BOX, seg=14;
+  const push=(px,py)=>PTS.push([px,py]);
+  const arc=(cx,cy,a0,a1)=>{for(let i=0;i<=seg;i++){const a=a0+(a1-a0)*i/seg; push(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}};
+  push(x+r,y); push(x+w-r,y); arc(x+w-r,y+r,-Math.PI/2,0);
+  push(x+w,y+h-r); arc(x+w-r,y+h-r,0,Math.PI/2);
+  push(x+r,y+h); arc(x+r,y+h-r,Math.PI/2,Math.PI);
+  push(x,y+r); arc(x+r,y+r,Math.PI,Math.PI*1.5);
+})();
+const CUM=[0]; for(let i=1;i<PTS.length;i++) CUM.push(CUM[i-1]+Math.hypot(PTS[i][0]-PTS[i-1][0],PTS[i][1]-PTS[i-1][1]));
+const TOTAL=CUM[CUM.length-1];
+function at(t){ const d=((t%1)+1)%1*TOTAL; let lo=0,hi=CUM.length-1;
+  while(lo<hi-1){const m=(lo+hi)>>1; if(CUM[m]<=d)lo=m; else hi=m;}
+  const f=(d-CUM[lo])/Math.max(1e-6,CUM[hi]-CUM[lo]);
+  return {x:PTS[lo][0]+(PTS[hi][0]-PTS[lo][0])*f, y:PTS[lo][1]+(PTS[hi][1]-PTS[lo][1])*f};
+}
+const T_BULB1=0.10, T_BULB2=0.17, T_SWITCH=0.36, T_GATE_A=0.57, T_GATE_B=0.80, T_BATT=0.985;
+
+/* ---------- electrical model ---------- */
+function model(){
+  const closed=S.on && S.cut===null && S.cells>0 && (S.scene!=='tester'||(S.sample&&S.sample[1]));
+  const V=1.5*S.cells, R=S.bulbs?S.bulbs*12:0.6;
+  const I=closed?V/R:0;
+  const P=S.bulbs?I*I*12:0;
+  const bright=S.bulbs?Math.min(1,(P/0.1875)/2.2):0;
+  return {closed,V,I,P,bright,short:closed&&S.bulbs===0};
+}
+
+/* ---------- beads ---------- */
+const BEADS=[]; for(let i=0;i<58;i++) BEADS.push({t:i/58});
+const WIREB=[]; for(let i=0;i<46;i++) WIREB.push({x:120+i*17,y:360+(Math.random()*40-20),px:0,py:0,jx:Math.random()*6.28,jy:Math.random()*6.28});
+
+/* ---------- drawing helpers ---------- */
+function dot(x,y,r,c,a){g.globalAlpha=a==null?1:a;g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,6.284);g.fill();g.globalAlpha=1}
+function label(x,y,txt,c,size){g.fillStyle=c||C.muted;g.font='500 '+(size||13)+'px JetBrains Mono, monospace';g.fillText(txt,x,y)}
+function rail(){
+  g.lineCap='round'; g.lineJoin='round';
+  g.strokeStyle='#4a2f14'; g.lineWidth=16; trace(); g.stroke();
+  g.strokeStyle=C.copper; g.lineWidth=7; trace(); g.stroke();
+  if(S.cut!==null){ const p=at(S.cut);
+    g.save(); g.globalCompositeOperation='destination-out';
+    g.beginPath(); g.arc(p.x,p.y,26,0,6.284); g.fill(); g.restore();
+    g.strokeStyle=C.bad; g.lineWidth=3;
+    g.beginPath(); g.arc(p.x,p.y,24,0,6.284); g.stroke();
+    label(p.x-34,p.y-34,'cut',C.bad);
+  }
+}
+function trace(){ g.beginPath(); g.moveTo(PTS[0][0],PTS[0][1]); for(let i=1;i<PTS.length;i++) g.lineTo(PTS[i][0],PTS[i][1]); g.closePath(); }
+function battery(){
+  const p=at(T_BATT), m=model();
+  g.save(); g.translate(p.x,p.y);
+  g.fillStyle='#07080d'; g.fillRect(-26,-56,52,112);
+  for(let i=0;i<S.cells;i++){
+    const y=-46+i*(92/Math.max(1,S.cells));
+    g.strokeStyle=C.ink; g.lineWidth=4;
+    g.beginPath(); g.moveTo(-22,y); g.lineTo(22,y); g.stroke();
+    g.lineWidth=4; g.beginPath(); g.moveTo(-11,y+14); g.lineTo(11,y+14); g.stroke();
+  }
+  g.restore();
+  label(p.x-96,p.y-62,(1.5*S.cells).toFixed(1)+' V',C.ink,15);
+  label(p.x-96,p.y-42,S.cells+(S.cells>1?' cells':' cell'),C.muted,11);
+  label(p.x+32,p.y-50,'+',C.hot,18); label(p.x+32,p.y+60,'−',C.cold,18);
+  if(m.closed){ g.strokeStyle='rgba(255,209,102,.18)'; g.lineWidth=2;
+    g.beginPath(); g.arc(p.x,p.y,70+6*Math.sin(S.t*4),0,6.284); g.stroke(); }
+}
+function bulb(tpos,idx){
+  const p=at(tpos), m=model();
+  const b=m.bright;
+  if(b>0){ const grd=g.createRadialGradient(p.x,p.y,4,p.x,p.y,40+80*b);
+    grd.addColorStop(0,'rgba(255,209,102,'+(0.55*b+0.2)+')'); grd.addColorStop(1,'rgba(255,209,102,0)');
+    g.fillStyle=grd; g.beginPath(); g.arc(p.x,p.y,40+80*b,0,6.284); g.fill(); }
+  g.fillStyle='#0b0d13'; g.beginPath(); g.arc(p.x,p.y,30,0,6.284); g.fill();
+  g.strokeStyle=b>0?C.hot:'#5b6373'; g.lineWidth=3; g.beginPath(); g.arc(p.x,p.y,30,0,6.284); g.stroke();
+  g.strokeStyle=b>0?'#fff3cf':'#7b8496'; g.lineWidth=b>0?3.5:2.4;
+  g.beginPath(); g.moveTo(p.x-13,p.y); g.lineTo(p.x-6,p.y-12); g.lineTo(p.x,p.y+12); g.lineTo(p.x+6,p.y-12); g.lineTo(p.x+13,p.y); g.stroke();
+  if(idx===0) label(p.x-26,p.y-46,'bulb',C.muted);
+}
+function switchDraw(){
+  const p=at(T_SWITCH);
+  g.fillStyle='#07080d'; g.beginPath(); g.arc(p.x,p.y,34,0,6.284); g.fill();
+  dot(p.x,p.y-20,6,C.ink); dot(p.x,p.y+20,6,C.ink);
+  g.strokeStyle=S.on?C.copper:'#6b7486'; g.lineWidth=6; g.lineCap='round';
+  g.beginPath(); g.moveTo(p.x,p.y+20);
+  if(S.on) g.lineTo(p.x,p.y-20); else g.lineTo(p.x+26,p.y-14);
+  g.stroke();
+  label(p.x+22,p.y+46,S.on?'closed':'open',S.on?C.good:C.muted);
+  label(p.x+22,p.y-40,'switch',C.muted);
+  S.switchPt=p;
+}
+function gate(tpos,name,count){
+  const p=at(tpos);
+  g.strokeStyle=C.cold; g.lineWidth=2; g.setLineDash([6,6]);
+  g.beginPath(); g.moveTo(p.x,p.y-34); g.lineTo(p.x,p.y+34); g.stroke(); g.setLineDash([]);
+  g.fillStyle='rgba(7,8,13,.9)'; g.strokeStyle=C.cold; g.lineWidth=2;
+  const w=108,h=42, bx=Math.max(8,Math.min(VW-w-8,p.x-w/2)), by=p.y+40;
+  g.beginPath(); g.rect(bx,by,w,h); g.fill(); g.stroke();
+  label(bx+9,by+16,name,C.cold,10);
+  g.fillStyle=C.ink; g.font='500 17px JetBrains Mono, monospace';
+  g.fillText(count+' /s',bx+9,by+34);
+}
+function beads(){
+  const m=model();
+  const sp=m.closed?Math.min(0.42,m.I*0.5):0;
+  BEADS.forEach(b=>{
+    const prev=b.t;
+    b.t=(b.t+sp*0.016+1)%1;
+    if(S.gateRun&&sp>0){
+      if(crossed(prev,b.t,T_GATE_A)) S.gateA++;
+      if(crossed(prev,b.t,T_GATE_B)) S.gateB++;
+    }
+    const p=at(b.t);
+    const lastBulb=S.bulbs===2?T_BULB2:T_BULB1;
+    const energetic=!(b.t>lastBulb&&b.t<T_BATT);
+    const col=m.closed?(energetic?C.hot:C.cold):'#6b7486';
+    dot(p.x,p.y,5.2,col,m.closed?1:.55);
+    if(energetic&&m.closed){ dot(p.x,p.y,9,C.hot,.18); }
+  });
+}
+function crossed(a,b,x){ return (a<x&&b>=x)||(b<a&&(a<x||b>=x)); }
+function sceneCircuit(){
+  const m=model();
+  rail(); beads();
+  bulb(T_BULB1,0); if(S.bulbs===2) bulb(T_BULB2,1);
+  switchDraw(); battery();
+  if(S.showGates){ gate(T_GATE_A,'gate A · before bulb',S.gateT>0?Math.round(S.gateA/S.gateT):0);
+                   gate(T_GATE_B,'gate B · after bulb',S.gateT>0?Math.round(S.gateB/S.gateT):0); }
+  if(m.short){ label(60,678,'NO BULB — nothing is resisting the flow',C.bad,16);
+               label(60,702,'a real cell would get hot and die',C.muted,13); }
+  else if(!m.closed){ label(60,678,S.cut!==null?'the loop is cut — every bead has stopped':'switch open — nothing moves anywhere',C.muted,15); }
+  if(S.hint) label(60,(m.closed?678:702),S.hint,C.muted,12);
+}
+function sceneWire(){
+  g.fillStyle='#2a1a0b'; g.beginPath();
+  if(g.roundRect) g.roundRect(90,300,820,140,70); else g.rect(90,300,820,140);
+  g.fill();
+  g.strokeStyle=C.copper; g.lineWidth=4; g.stroke();
+  label(90,262,'inside a copper wire, magnified about a million times',C.muted,14);
+  const m={closed:S.on};
+  WIREB.forEach((b,i)=>{
+    b.jx+=0.06; b.jy+=0.08;
+    const jig=Math.sin(b.jx)*7, jig2=Math.cos(b.jy)*9;
+    if(S.on) b.x+=0.9;
+    if(b.x>900) b.x=100;
+    dot(b.x+jig,b.y+jig2,6,S.on?C.hot:'#8a6a45',S.on?1:.75);
+  });
+  for(let i=0;i<24;i++){ const x=120+i*33;
+    g.strokeStyle='rgba(226,146,63,.22)'; g.lineWidth=2;
+    g.beginPath(); g.arc(x,370,10,0,6.284); g.stroke(); }
+  label(90,490,S.on?'switch closed — every charge in the whole wire starts drifting together':'switch open — the charges are here, jiggling, going nowhere',S.on?C.hot:C.muted,16);
+  if(S.on){ label(90,520,'drift speed: about 0.1 mm per second — slower than a snail',C.ink,14);
+            label(90,546,'but the push that starts them travels almost at the speed of light',C.ink,14); }
+  label(90,620,'copper already contains its own charges · a cell adds none',C.muted,13);
+}
+function sceneTester(){
+  g.strokeStyle='#4a2f14'; g.lineWidth=14; g.lineCap='round';
+  g.beginPath(); g.moveTo(200,520); g.lineTo(200,260); g.lineTo(380,260); g.stroke();
+  g.beginPath(); g.moveTo(620,260); g.lineTo(800,260); g.lineTo(800,520); g.lineTo(200,520); g.stroke();
+  g.strokeStyle=C.copper; g.lineWidth=6;
+  g.beginPath(); g.moveTo(200,520); g.lineTo(200,260); g.lineTo(380,260); g.stroke();
+  g.beginPath(); g.moveTo(620,260); g.lineTo(800,260); g.lineTo(800,520); g.lineTo(200,520); g.stroke();
+  // clips
+  dot(380,260,10,C.ink); dot(620,260,10,C.ink);
+  g.strokeStyle=S.sample?C.ink:'#3a4354'; g.lineWidth=3; g.setLineDash(S.sample?[]:[8,8]);
+  g.strokeRect(392,228,216,64); g.setLineDash([]);
+  if(S.sample){ g.fillStyle='#1b2130'; g.fillRect(392,228,216,64);
+    g.fillStyle=C.ink; g.font='500 17px JetBrains Mono, monospace'; g.textAlign='center';
+    g.fillText(S.sample[0],500,266); g.textAlign='left'; }
+  else { label(420,266,'clip a sample here',C.muted,15); }
+  // battery
+  g.strokeStyle=C.ink; g.lineWidth=4;
+  g.beginPath(); g.moveTo(170,420); g.lineTo(230,420); g.stroke();
+  g.beginPath(); g.moveTo(185,436); g.lineTo(215,436); g.stroke();
+  label(90,470,'1.5 V',C.muted,13);
+  // bulb
+  const lit=S.sample&&S.sample[1]&&S.tested.some(t=>t[0]===S.sample[0]);
+  if(lit){ const grd=g.createRadialGradient(800,390,4,800,390,110);
+    grd.addColorStop(0,'rgba(255,209,102,.6)'); grd.addColorStop(1,'rgba(255,209,102,0)');
+    g.fillStyle=grd; g.beginPath(); g.arc(800,390,110,0,6.284); g.fill(); }
+  g.fillStyle='#0b0d13'; g.beginPath(); g.arc(800,390,30,0,6.284); g.fill();
+  g.strokeStyle=lit?C.hot:'#5b6373'; g.lineWidth=3; g.beginPath(); g.arc(800,390,30,0,6.284); g.stroke();
+  g.strokeStyle=lit?'#fff3cf':'#7b8496'; g.lineWidth=lit?3.5:2.4;
+  g.beginPath(); g.moveTo(787,390); g.lineTo(794,378); g.lineTo(800,402); g.lineTo(806,378); g.lineTo(813,390); g.stroke();
+  label(200,620,lit?'it glows — this sample completes the loop':(S.sample?'no glow — the loop is still broken':''),lit?C.hot:C.muted,15);
+}
+let last=0;
+function frame(ts){
+  const dt=Math.min(.05,(ts-(last||ts))/1000); last=ts; S.t+=dt;
+  if(S.gateRun) S.gateT+=dt;
+  g.clearRect(0,0,VW,VH);
+  if(S.scene==='wire') sceneWire();
+  else if(S.scene==='tester') sceneTester();
+  else sceneCircuit();
+  updateHud();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- hud ---------- */
+function hud(items){ const h=$('#hud'); h.dataset.k=items.length?'1':''; h.style.display=items.length?'flex':'none';
+  h.innerHTML=items.map(i=>'<div class="gauge"><span>'+i+'</span><b>—</b></div>').join(''); }
+function updateHud(){
+  const h=$('#hud'); if(!h.dataset.k) return;
+  const m=model(), b=h.children;
+  const set=(i,v,c)=>{ if(b[i]){ b[i].querySelector('b').textContent=v; b[i].querySelector('b').style.color=c||C.ink; } };
+  if(S.scene==='circuit'){
+    set(0,m.short?'off scale':Math.round(m.I*1000)+' mA',m.short?C.bad:C.ink);
+    set(1,m.P.toFixed(2)+' W');
+    set(2,(m.I*0.8).toFixed(2)+' mm/s');
+    set(3,m.short?'short':m.closed?'closed':'open',m.short?C.bad:(m.closed?C.good:C.muted));
+  }
+}
+
+/* ---------- pointer ---------- */
+function vpt(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*VW,y:(e.clientY-r.top)/r.height*VH};}
+cv.addEventListener('pointerdown',e=>{
+  const p=vpt(e);
+  if(S.scene==='wire'){ S.on=!S.on; if(S.on) done.wire=true; return; }
+  if(S.scene!=='circuit') return;
+  if(S.switchPt&&Math.hypot(p.x-S.switchPt.x,p.y-S.switchPt.y)<54){ S.on=!S.on; if(S.on)done.close=true; return; }
+  // nearest point on loop → cut or mend
+  let best=null,bd=1e9;
+  for(let i=0;i<PTS.length;i++){const d=Math.hypot(PTS[i][0]-p.x,PTS[i][1]-p.y); if(d<bd){bd=d;best=i;}}
+  if(bd<46){
+    const t=CUM[best]/TOTAL;
+    if(S.cut!==null&&Math.abs(((t-S.cut)+1)%1)<0.06){ S.cut=null; }
+    else if(S.canCut){ S.cut=t; done.cut=true; }
+  }
+});
+
+/* ---------- chapters ---------- */
+const CH=[
+{t:'The wire is <em>already full</em> of charge',scene:'wire',
+ body:`<p>Before anything is switched on, a copper wire is not empty and waiting. It is packed with charges that belong to the copper itself, jiggling about at random, going nowhere in particular.</p>
+ <p>A cell does not pour charge into the wire and it does not store charge. It only <strong>pushes</strong> what is already there — like a pump in a pipe that is already full of water.</p>
+ <p class="hi">तार में आवेश पहले से मौजूद हैं — सेल सिर्फ़ धक्का देता है।</p>`,
+ task:'Tap the wire to close the switch, and watch every charge in it start moving together.',
+ gate:()=>done.wire, hud:[]},
+
+{t:'Close the loop, and <em>everything</em> moves at once',scene:'circuit',
+ body:`<p>Here is the whole circuit: a cell, a bulb, a switch, and copper joining them. Tap the switch to close it.</p>
+ <p>Notice what happens the instant it closes — charges start moving <strong>everywhere in the loop at the same moment</strong>, even the ones on the far side from the cell. They do not have to travel from the cell to the bulb first.</p>
+ <p>Each bead crawls along at about a tenth of a millimetre per second. The push that starts them, though, races around the loop at nearly the speed of light. That is why a bulb lights the moment you flick a switch, not an hour later.</p>`,
+ task:'Tap the switch in the stage to close the circuit.', gate:()=>done.close,
+ hud:['current','power in bulb','drift speed','state']},
+
+{t:'Break it <em>anywhere</em>, it stops <em>everywhere</em>',scene:'circuit',
+ body:`<p>Tap anywhere on the copper to cut the wire there. Tap the cut again to mend it.</p>
+ <p>Cut it on the far side, past the bulb, where the charge has supposedly "already been used". Everything still stops — including the stretch between the cell and the bulb, which the cut has not touched.</p>
+ <p>That is what <strong>a circuit</strong> means. Not a path from the cell to the bulb, but an unbroken ring. One gap anywhere and the whole ring freezes.</p>`,
+ task:'Cut the wire past the bulb and watch the beads before the bulb stop too.',
+ gate:()=>done.cut, canCut:true, hud:['current','power in bulb','drift speed','state']},
+
+{t:'Does the bulb <em>eat</em> the current?',scene:'circuit',
+ body:`<p>Two counting gates sit in the loop — one before the bulb, one after it. Each counts beads passing per second.</p>`,
+ quiz:{q:'When you run the counters, what will they read?',
+  opts:['Gate A higher — the bulb uses some up','Both exactly the same','Gate B higher — the cell pushes harder after the bulb'],
+  a:1,
+  run:()=>{S.on=true;S.cut=null;S.showGates=true;S.gateA=S.gateB=S.gateT=0;S.gateRun=true;},
+  why:`<b>Both read the same, and they always will.</b> Charge is not consumed; it goes round and round. Whatever enters the filament comes out the other side. If it did not, charge would be piling up inside the bulb — and nothing in the universe does that. What the bulb takes is <em>energy</em>, and energy is the subject of the next chapter.`},
+ task:'Predict, then watch both counters for a few seconds.', gate:()=>done.q, showGates:true,
+ hud:['current','power in bulb','drift speed','state']},
+
+{t:'What the bulb <em>actually</em> spends',scene:'circuit',
+ body:`<p>Look at the colours now. Beads leaving the cell are <span style="color:var(--hot)">gold</span> — carrying energy. The instant they pass through the filament they turn <span style="color:var(--cold)">blue</span>, and stay blue all the way back to the cell, which re-energises them.</p>
+ <p>Same number of beads everywhere. Different energy before and after. <strong>Current is not used up; energy is.</strong></p>
+ <p>That spent energy does not vanish — it left the filament as heat and light. At 125 mA through this bulb, about 0.19 watts leaves the circuit every second as the glow you see.</p>
+ <p class="hi">धारा ख़र्च नहीं होती — ऊर्जा ख़र्च होती है।</p>`,
+ task:'Follow one gold bead round until it turns blue, then round again until the cell restores it.',
+ hud:['current','power in bulb','drift speed','state']},
+
+{t:'More push, or more to push <em>through</em>',scene:'circuit',
+ body:`<p>Two controls, two completely different effects. Add cells and you push harder: more current, a brighter bulb. Add a second bulb into the same ring and every bead has twice as much to struggle through: less current, both bulbs dimmer.</p>
+ <p>Watch the numbers rather than the glow. One cell gives 125 mA and 0.19 W. Two cells give 250 mA and 0.75 W — twice the current but <strong>four times</strong> the power, which is exactly why a bulb meant for one cell burns out on three.</p>`,
+ task:'Try three cells with one bulb, then one cell with two bulbs, and compare the readings.',
+ gate:()=>done.play, hud:['current','power in bulb','drift speed','state']},
+
+{t:'Build a tester and <em>stop guessing</em>',scene:'tester',
+ body:`<p>Here is the same circuit with a deliberate gap. Whatever you clip across the gap either completes the ring or it does not, and the bulb reports the verdict.</p>
+ <p>Predict each sample before you test it. Looks are not evidence — one of these will break the rule you are about to invent.</p>`,
+ task:'Predict and test at least four samples.', gate:()=>done.tester, hud:[]},
+
+{t:'Four claims, one <em>bench</em>',scene:'circuit',
+ body:`<p>You have now seen enough to judge these yourself. Decide, then read why — and if you were wrong, say so out loud. Changing your mind because of evidence is the entire skill.</p>`,
+ myths:true, task:'Judge all four claims.', gate:()=>done.myths,
+ hud:['current','power in bulb','drift speed','state']}
+];
+
+let idx=0,maxSeen=0;
+function buildRail(){ const r=$('#rail'); r.innerHTML='';
+  CH.forEach((c,i)=>{const b=document.createElement('button'); b.textContent=i+1;
+    b.setAttribute('aria-label','Chapter '+(i+1)); if(i<=maxSeen)b.dataset.on='1';
+    b.setAttribute('aria-current',i===idx?'true':'false');
+    b.onclick=()=>{if(i<=maxSeen)go(i)}; r.appendChild(b);});}
+function go(i){
+  idx=Math.max(0,Math.min(CH.length-1,i)); maxSeen=Math.max(maxSeen,idx);
+  const c=CH[idx];
+  S.scene=c.scene==='circuit'?'circuit':c.scene;
+  S.canCut=!!c.canCut; if(!S.canCut) S.cut=null;
+  S.showGates=!!c.showGates; S.gateRun=!!c.showGates;
+  if(idx>=1&&c.scene==='circuit'&&idx!==1) S.on=true;
+  S.hint=idx===2?'tap the copper to cut · tap the cut to mend':'';
+  $('#ttl').innerHTML=c.t; $('#txt').innerHTML=c.body;
+  $('#pos').textContent=(idx+1)+' / '+CH.length;
+  $('#taskP').textContent=c.task||'';
+  hud(c.hud||[]);
+  const ex=$('#extra'); ex.innerHTML='';
+  if(c.quiz) ex.appendChild(quizBox(c.quiz));
+  if(idx===5) ex.appendChild(playControls());
+  if(idx===6) ex.appendChild(testerControls());
+  if(c.myths) ex.appendChild(mythBox());
+  $('#back').disabled=false;
+  $('#next').textContent=idx===CH.length-1?'Start again':'Next';
+  buildRail(); refresh();
+}
+function refresh(){ const c=CH[idx], ok=!c.gate||c.gate();
+  $('#task').classList.toggle('done',ok); $('#taskT').textContent=ok?'Done':'Do this'; }
+setInterval(refresh,400);
+$('#next').onclick=()=>{ if(idx===CH.length-1){go(0);window.scrollTo({top:0,behavior:'smooth'});} else go(idx+1); };
+$('#back').onclick=()=>{ window.location.href='../index.html?subject=labs56'; };
+function el(h){const d=document.createElement('div'); d.innerHTML=h; return d.firstElementChild;}
+
+function playControls(){
+  const d=el(`<div class="ctrls">
+    <div class="ctrl"><label>Cells in the battery <b id="vc">1</b></label><input id="cc" type="range" min="1" max="3" value="${S.cells}"></div>
+    <div class="btnrow"><button class="b" id="bb">${S.bulbs===2?'Back to one bulb':'Add a second bulb'}</button>
+      <button class="b ghost" id="sw">${S.on?'Open the switch':'Close the switch'}</button></div>
+    <p class="mini" id="warn" style="margin:0">Power grows with the square of the current.</p>
+  </div>`);
+  const warn=()=>{ const m=model();
+    d.querySelector('#warn').textContent = m.bright>=0.99
+      ? 'Over its rating: '+m.P.toFixed(2)+' W through a filament built for about 0.19 W. On a real bench this bulb would fuse.'
+      : (S.bulbs===2 ? 'Two bulbs share one push: '+Math.round(m.I*1000)+' mA through both, '+m.P.toFixed(2)+' W each.'
+      : 'Power grows with the square of the current.'); };
+  d.querySelector('#cc').oninput=e=>{S.cells=+e.target.value; d.querySelector('#vc').textContent=S.cells; done.play=true; warn();};
+  d.querySelector('#bb').onclick=e=>{S.bulbs=S.bulbs===2?1:2; e.target.textContent=S.bulbs===2?'Back to one bulb':'Add a second bulb'; done.play=true; warn();};
+  d.querySelector('#sw').onclick=e=>{S.on=!S.on; e.target.textContent=S.on?'Open the switch':'Close the switch';};
+  return d;
+}
+const SAMPLES=[['iron key',1],['aluminium foil',1],['pencil lead',1],['rubber eraser',0],['plastic scale',0],['wooden stick',0]];
+function testerControls(){
+  const d=el(`<div class="ctrls">
+    <div class="btnrow" id="sm"></div>
+    <div class="btnrow" id="pr" hidden><span class="mini" style="width:100%">Will the bulb glow?</span></div>
+    <div class="verdict" id="tv" hidden></div>
+    <table><thead><tr><th>sample</th><th>you said</th><th>bench said</th></tr></thead><tbody id="tb"><tr><td colspan="3" class="mini">nothing tested yet</td></tr></tbody></table>
+    <div id="tq" hidden></div>
+  </div>`);
+  SAMPLES.forEach(s=>{const b=document.createElement('button'); b.className='b'; b.textContent=s[0];
+    b.onclick=()=>{S.sample=s; d.querySelector('#pr').hidden=false; d.querySelector('#tv').hidden=true;
+      [...d.querySelector('#sm').children].forEach(c=>c.classList.remove('key')); b.classList.add('key');
+      [...d.querySelectorAll('#pr .b')].forEach(c=>{c.disabled=false;c.classList.remove('right','wrong')});};
+    d.querySelector('#sm').appendChild(b);});
+  [['It will glow',1],['It will not',0]].forEach(([lbl,v])=>{
+    const b=document.createElement('button'); b.className='b'; b.textContent=lbl;
+    b.onclick=()=>{
+      if(!S.sample) return;
+      const truth=S.sample[1], ok=v===truth;
+      [...d.querySelectorAll('#pr .b')].forEach(c=>c.disabled=true);
+      b.classList.add(ok?'right':'wrong');
+      if(!S.tested.some(t=>t[0]===S.sample[0])) S.tested.push([S.sample[0],v,truth]);
+      const tv=d.querySelector('#tv'); tv.hidden=false;
+      tv.innerHTML=truth? (ok?'<b>Correct.</b> Charge passes straight through it, so the ring is complete again.'
+                             :'<b>It glows.</b> This one does carry charge, whatever it looks like.')
+                        : (ok?'<b>Correct.</b> The gap stays a gap — nothing moves anywhere in the loop.'
+                             :'<b>No glow.</b> The ring is still broken, so the beads stay frozen.');
+      d.querySelector('#tb').innerHTML=S.tested.map(t=>'<tr><td>'+t[0]+'</td><td>'+(t[1]?'glows':'no glow')+'</td><td style="color:'+(t[2]?C.hot:C.muted)+'">'+(t[2]?'glows':'no glow')+'</td></tr>').join('');
+      if(S.tested.length>=4&&d.querySelector('#tq').hidden){ done.tester=true; showTQ(d.querySelector('#tq')); }
+    };
+    d.querySelector('#pr').appendChild(b);});
+  return d;
+}
+function showTQ(host){
+  host.hidden=false;
+  host.innerHTML='<p style="margin:0 0 8px;font-size:15px"><b>Look at your own table. What do the ones that glow have in common?</b></p><div class="btnrow" style="flex-direction:column" id="tqo"></div><div class="verdict" id="tqv" hidden></div>';
+  [['They are all metals',0],['They are all hard and shiny',0],['They all let charge through — mostly metals, plus pencil lead, which is not one',1]].forEach(([t,ok])=>{
+    const b=document.createElement('button'); b.className='b opt'; b.innerHTML='<span>'+t+'</span>';
+    b.onclick=()=>{ [...host.querySelectorAll('#tqo .b')].forEach(c=>c.disabled=true);
+      b.classList.add(ok?'right':'wrong');
+      const v=host.querySelector('#tqv'); v.hidden=false;
+      v.innerHTML=ok? '<b>Exactly.</b> Pencil lead is graphite — a form of carbon, not a metal, and it conducts. A rule with a known exception is not a broken rule; it is a signpost telling you where the real reason is hiding.'
+                    : '<b>Your own table says otherwise.</b> Pencil lead glowed, and it is neither a metal nor shiny. The exception is the most interesting row in the table, not a mistake to ignore.';
+    };
+    host.querySelector('#tqo').appendChild(b);});
+}
+function quizBox(q){
+  const d=el('<div class="ctrls"><p style="margin:0;font-size:15px"><b>'+q.q+'</b></p><div class="btnrow" style="flex-direction:column" data-o></div><div class="verdict" hidden></div></div>');
+  const box=d.querySelector('[data-o]');
+  q.opts.forEach((o,i)=>{const b=document.createElement('button'); b.className='b opt';
+    b.innerHTML='<i>'+String.fromCharCode(65+i)+'</i><span>'+o+'</span>';
+    b.onclick=()=>{[...box.children].forEach(c=>c.disabled=true);
+      box.children[q.a].classList.add('right'); if(i!==q.a)b.classList.add('wrong');
+      if(q.run)q.run();
+      const v=d.querySelector('.verdict'); v.hidden=false; v.innerHTML=q.why; done.q=true;};
+    box.appendChild(b);});
+  return d;
+}
+const MYTHS=[
+ {c:'A cell stores the current it gives out.',t:false,
+  why:'It stores chemical energy, not charge. The charges were already in the wire; the cell only pushes them and hands them energy. A "dead" cell still has every charge it ever had — it has simply run out of the chemistry that does the pushing.'},
+ {c:'A bulb will not glow if the cell is connected the other way round.',t:false,
+  why:'Turn the cell around and the filament heats up exactly the same. Direction matters for a motor, an LED or a cell being charged — never for a plain filament bulb.'},
+ {c:'If you cut the wire after the bulb, the bulb still glows for a moment.',t:false,
+  why:'You tested this in chapter 3. Cut the ring anywhere and every charge in it stops at once, including the stretch between the cell and the bulb. There is no "after" in a ring.'},
+ {c:'Connecting a cell to a wire with no bulb is harmless — nothing is there to use the energy.',t:false,
+  why:'That is a short circuit, and it is the most dangerous thing on this page. With nothing to resist the flow, the current runs enormous and all that energy goes into heating the cell and the wire. It is why fuses exist, and why nobody ever tries this with a socket.'}
+];
+function mythBox(){
+  const d=el('<div class="ctrls"></div>'); let n=0;
+  MYTHS.forEach(m=>{
+    const row=el('<div style="border-bottom:1px solid var(--line);padding-bottom:11px"><p style="margin:0 0 8px;font-size:15px">“'+m.c+'”</p><div class="btnrow"></div><div class="verdict" hidden style="margin-top:9px"></div></div>');
+    const br=row.querySelector('.btnrow');
+    [['True',true],['False',false]].forEach(([lbl,val])=>{
+      const b=document.createElement('button'); b.className='b'; b.textContent=lbl;
+      b.onclick=()=>{[...br.children].forEach(c=>c.disabled=true);
+        const ok=val===m.t; b.classList.add(ok?'right':'wrong');
+        const v=row.querySelector('.verdict'); v.hidden=false;
+        v.innerHTML='<b>'+(ok?'Correct. ':'It is false. ')+'</b>'+m.why;
+        n++; if(n>=MYTHS.length) done.myths=true;};
+      br.appendChild(b);});
+    d.appendChild(row);
+  });
+  return d;
+}
+go(0);
+})();
+</script>
+</body>
+</html>

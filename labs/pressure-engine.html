@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Pressure Engine</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@110,500;110,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+    <style>
+      :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+      body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
+      img{max-width:100%}
+      [hidden]{display:none!important}
+    </style>
+<style>
+/* Layout: one living instrument on top, a chapter panel under it — committed dark "night bench" world */
+:root{
+  --bg:#060d12; --panel:#0c161d; --panel2:#122029; --line:#1d2f3a;
+  --ink:#e9f4f6; --muted:#8aa5b0;
+  --o2:#4ad4ea; --co2:#ff9f62; --blood:#ff5f72; --good:#5fd8a4; --warn:#ffd166;
+  --display:"Archivo",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --deva:"Noto Sans Devanagari",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5}
+.app{max-width:1100px; margin:0 auto; padding-inline:14px; padding-block:0 40px; display:flex; flex-direction:column; gap:0}
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:linear-gradient(var(--bg) 72%,transparent); padding-block:12px 8px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.brand{font-family:var(--display); font-weight:700; font-size:17px; letter-spacing:-.01em}
+.brand em{font-style:normal; color:var(--o2)}
+.kicker{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+.rail{display:flex; gap:5px; margin-left:auto}
+.rail button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;padding:0}
+.rail button[data-on]{border-color:var(--o2); color:var(--o2)}
+.rail button[aria-current="true"]{background:var(--o2); border-color:var(--o2); color:#04171c; font-weight:600}
+.split{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:18px; align-items:start}
+@media(max-width:860px){.split{grid-template-columns:1fr; gap:12px}}
+.stagewrap{position:sticky; top:calc(env(safe-area-inset-top,0px) + 52px); background:
+   radial-gradient(120% 90% at 50% 0%,#0f2029 0%,#070f14 70%);
+  border:1px solid var(--line); border-radius:10px; overflow:hidden}
+@media(max-width:860px){
+  .topbar{position:static; background:none; padding-block:10px 6px}
+  .stagewrap{top:calc(env(safe-area-inset-top,0px) + 6px)}
+  .rail{margin-left:0; width:100%; flex-wrap:wrap}
+}
+canvas{display:block; width:100%; height:auto; touch-action:none}
+.hud{display:none; gap:1px; background:var(--line); border-top:1px solid var(--line)}
+.hud .gauge{flex:1 1 0; min-width:0}
+.gauge{background:var(--panel); padding:7px 10px}
+.gauge span{display:block; font-family:var(--mono); font-size:8.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+.gauge b{font-family:var(--mono); font-size:15px; font-weight:500; font-variant-numeric:tabular-nums}
+.bar{height:5px; border-radius:99px; background:#16242c; overflow:hidden; margin-top:5px}
+.bar i{display:block;height:100%;background:var(--o2);width:50%}
+.panel{display:flex; flex-direction:column; gap:14px; padding-block:14px 0}
+h1{font-family:var(--display); font-weight:700; font-size:clamp(25px,5.2vw,34px); line-height:1.08; letter-spacing:-.02em; margin:0; text-wrap:balance}
+h1 em{font-style:normal; color:var(--o2)}
+.body{color:#c3d6dc; max-width:56ch}
+.body strong{color:var(--ink)}
+.hi{font-family:var(--deva); color:var(--muted); font-size:14px}
+.task{border:1px solid var(--line); border-left:3px solid var(--warn); background:var(--panel); border-radius:0 8px 8px 0; padding:11px 13px; display:flex; gap:10px; align-items:flex-start}
+.task.done{border-left-color:var(--good)}
+.task .t{font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--warn)}
+.task.done .t{color:var(--good)}
+.task p{margin:3px 0 0; font-size:14px; color:#c3d6dc}
+.ctrls{display:flex; flex-direction:column; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:13px}
+.ctrl label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+.ctrl label b{color:var(--ink); font-weight:500}
+input[type=range]{width:100%; accent-color:var(--o2)}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap}
+button.b{font:inherit; cursor:pointer; border-radius:6px; padding:9px 14px; font-size:14px; font-weight:500; border:1px solid var(--line); background:var(--panel2); color:var(--ink)}
+button.b.key{background:var(--o2); border-color:var(--o2); color:#04171c; font-weight:600}
+button.b.ghost{background:transparent}
+button.b:disabled{opacity:.4; cursor:not-allowed}
+button.b:focus-visible,.rail button:focus-visible{outline:2px solid var(--warn); outline-offset:2px}
+.opt{text-align:left; width:100%; display:flex; gap:10px; align-items:flex-start; padding:11px 13px}
+.opt i{font-family:var(--mono); font-size:11px; color:var(--muted); font-style:normal; padding-top:2px}
+.b.right{border-color:var(--good); color:var(--good)}
+.b.wrong{border-color:var(--blood); color:var(--blood)}
+.verdict{font-size:14px; color:#c3d6dc; border-top:1px solid var(--line); padding-top:11px}
+.verdict b{color:var(--ink)}
+.nav{display:flex; gap:8px; align-items:center; padding-block:4px 0}
+.nav .sp{flex:1}
+.mini{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.tagrow{display:flex; gap:7px; flex-wrap:wrap}
+.tag{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; border:1px solid var(--line); border-radius:99px; padding:4px 9px; color:var(--muted)}
+.tag.o2{color:var(--o2); border-color:#1c4a56} .tag.co2{color:var(--co2); border-color:#5a3a26}
+.chart{display:flex; gap:12px; align-items:flex-end; height:92px}
+.chart figure{flex:1; margin:0; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; text-align:center}
+.chart .col{background:var(--o2); border-radius:3px 3px 0 0; min-height:3px}
+.chart .col.b2{background:var(--co2)} .chart .col.b3{background:#24404b}
+.chart b{font-family:var(--mono); font-size:14px; font-variant-numeric:tabular-nums}
+.chart figcaption{font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:.06em}
+.count{font-family:var(--mono); font-size:38px; font-variant-numeric:tabular-nums; text-align:center; letter-spacing:-.02em}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="kicker">Class 7 · Breathing in organisms</div>
+      <div class="brand">The Pressure <em>Engine</em></div>
+    </div>
+    <div class="rail" id="rail"></div>
+  </div>
+
+  <div class="split">
+    <div class="stagewrap">
+      <canvas id="cv" width="1000" height="720" aria-label="Live air-particle simulation of breathing"></canvas>
+      <div class="hud" id="hud"></div>
+    </div>
+
+    <div class="panel">
+      <h1 id="ttl"></h1>
+      <div class="body" id="txt"></div>
+      <div id="extra"></div>
+      <div class="task" id="task"><div><span class="t" id="taskT">Do this</span><p id="taskP"></p></div></div>
+      <div class="nav">
+        <button class="b ghost" id="back">Back to experiments</button>
+        <span class="mini" id="pos"></span>
+        <span class="sp"></span>
+        <button class="b key" id="next">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const cv=$('#cv'), g=cv.getContext('2d');
+const VW=1000, VH=720;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COL={o2:'#4ad4ea',co2:'#ff9f62',blood:'#ff5f72',ink:'#e9f4f6',muted:'#8aa5b0',line:'#24404b',good:'#5fd8a4',warn:'#ffd166'};
+
+/* ===== simulation state ===== */
+const S={
+  scene:'room', k:0,            // k = diaphragm pull 0..1
+  auto:false, rate:15, t:0,
+  pIn:1, vol:2300, flow:0, inflowTotal:0, outflowTotal:0,
+  hold:false, held:0,
+  traced:null, tracedDone:false,
+  activity:1, rbcLoaded:0,
+  hitCount:0, hitRate:0,
+  restBpm:null, actBpm:null, mode:'rest'
+};
+const done={};
+
+/* ===== geometry ===== */
+function lungGeom(){
+  const k=S.k;
+  const ry=132*(1+0.30*k), rx=96*(1+0.13*k);
+  const cy=330+16*k;
+  return [{x:392,y:cy,rx,ry},{x:608,y:cy,rx,ry}];
+}
+function diaphY(){ return 500+70*S.k; }
+const NOSE={x:500,y:96};
+function airwayPts(side){
+  const L=lungGeom()[side];
+  return [[500,96],[500,150],[500,250],[side?560:440,282],[L.x,L.y-20]];
+}
+function lerpPath(pts,t){
+  const seg=(pts.length-1), i=Math.min(seg-1,Math.floor(t*seg)), f=t*seg-i;
+  return {x:pts[i][0]+(pts[i+1][0]-pts[i][0])*f, y:pts[i][1]+(pts[i+1][1]-pts[i][1])*f};
+}
+
+/* ===== particles ===== */
+const out=[], inside=[], moving=[];
+function rnd(a,b){return a+Math.random()*(b-a)}
+for(let i=0;i<190;i++) out.push({x:rnd(20,980),y:rnd(20,700),vx:rnd(-.7,.7),vy:rnd(-.7,.7)});
+for(let i=0;i<150;i++){const s=i%2,L=lungGeom()[s],a=Math.random()*Math.PI*2,r=Math.sqrt(Math.random());
+  inside.push({s,x:L.x+Math.cos(a)*L.rx*r*.9,y:L.y+Math.sin(a)*L.ry*r*.9,vx:rnd(-.8,.8),vy:rnd(-.8,.8),co2:Math.random()<.08});}
+const BODY={x:250,y:170,w:500,h:430};
+function stepParticles(dt){
+  const G=lungGeom();
+  const area=Math.PI*G[0].rx*G[0].ry*2;
+  const restArea=Math.PI*96*132*2;
+  S.vol=Math.round(2300*area/restArea);
+  const dens=inside.length/area*1e4;
+  S.pIn=dens/ (150/restArea*1e4);
+  out.forEach(p=>{
+    p.x+=p.vx*dt*60; p.y+=p.vy*dt*60;
+    if(p.x<8||p.x>992)p.vx*=-1; if(p.y<8||p.y>712)p.vy*=-1;
+    if(p.x>BODY.x&&p.x<BODY.x+BODY.w&&p.y>BODY.y&&p.y<BODY.y+BODY.h){
+      const dl=p.x-BODY.x, dr=BODY.x+BODY.w-p.x, dt2=p.y-BODY.y, db=BODY.y+BODY.h-p.y;
+      const m=Math.min(dl,dr,dt2,db);
+      if(m===dl){p.x=BODY.x-1;p.vx=-Math.abs(p.vx)} else if(m===dr){p.x=BODY.x+BODY.w+1;p.vx=Math.abs(p.vx)}
+      else if(m===dt2){p.y=BODY.y-1;p.vy=-Math.abs(p.vy)} else {p.y=BODY.y+BODY.h+1;p.vy=Math.abs(p.vy)}
+    }
+  });
+  inside.forEach(p=>{
+    const L=G[p.s];
+    p.x+=p.vx*dt*60; p.y+=p.vy*dt*60;
+    const nx=(p.x-L.x)/L.rx, ny=(p.y-L.y)/L.ry, d=Math.hypot(nx,ny);
+    if(d>0.94){ const ux=nx/d, uy=ny/d;
+      p.x=L.x+ux*L.rx*0.93; p.y=L.y+uy*L.ry*0.93;
+      const dot=p.vx*ux+p.vy*uy; p.vx-=2*dot*ux; p.vy-=2*dot*uy; }
+  });
+  // pressure-driven flow through the airway
+  const diff=1-S.pIn;
+  S.flow=diff;
+  if(!S.hold){
+    if(diff>0.012 && Math.random()<Math.min(1,diff*7)){
+      const s=Math.random()<.5?0:1;
+      moving.push({t:0,s,dir:1,co2:false,speed:1.5+diff*3,tag:false});
+      S.inflowTotal++;
+    }
+    if(diff<-0.012 && inside.length>40 && Math.random()<Math.min(1,-diff*7)){
+      const idx=Math.floor(Math.random()*inside.length), p=inside.splice(idx,1)[0];
+      moving.push({t:1,s:p.s,dir:-1,co2:Math.random()<.35,speed:1.5-diff*3});
+      S.outflowTotal++;
+    }
+  }
+  for(let i=moving.length-1;i>=0;i--){
+    const m=moving[i]; m.t+=m.dir*dt*m.speed*0.5;
+    if(m.dir>0&&m.t>=1){
+      const L=G[m.s], a=Math.random()*Math.PI*2, r=Math.sqrt(Math.random())*.6;
+      inside.push({s:m.s,x:L.x+Math.cos(a)*L.rx*r,y:L.y+Math.sin(a)*L.ry*r,vx:rnd(-.8,.8),vy:rnd(-.8,.8),co2:false,tag:m.tag});
+      if(m.tag){S.traced='inside'; done.trace=true; S.tracedDone=true;}
+      moving.splice(i,1);
+    } else if(m.dir<0&&m.t<=0){ moving.splice(i,1); }
+  }
+}
+
+/* ===== drawing ===== */
+function clear(){ g.clearRect(0,0,VW,VH); }
+function dot(x,y,r,c,a){ g.globalAlpha=a==null?1:a; g.fillStyle=c; g.beginPath(); g.arc(x,y,r,0,6.284); g.fill(); g.globalAlpha=1; }
+function torso(){
+  g.strokeStyle='#1f3d49'; g.lineWidth=3;
+  g.beginPath();
+  g.moveTo(300,170); g.bezierCurveTo(250,230,246,420,268,600);
+  g.lineTo(732,600); g.bezierCurveTo(754,420,750,230,700,170);
+  g.bezierCurveTo(640,140,360,140,300,170); g.stroke();
+  // ribs
+  g.strokeStyle='#1a3540'; g.lineWidth=2.4;
+  for(let i=0;i<5;i++){
+    const y=236+i*62-10*S.k, sp=1+0.05*S.k;
+    g.beginPath(); g.moveTo(500,y-8); g.quadraticCurveTo(500-180*sp,y-26,500-212*sp,y+36); g.stroke();
+    g.beginPath(); g.moveTo(500,y-8); g.quadraticCurveTo(500+180*sp,y-26,500+212*sp,y+36); g.stroke();
+  }
+}
+function airway(){
+  g.strokeStyle='#2b5464'; g.lineWidth=16; g.lineCap='round';
+  const G=lungGeom();
+  g.beginPath(); g.moveTo(500,110); g.lineTo(500,250); g.stroke();
+  g.beginPath(); g.moveTo(500,250); g.lineTo(440,282); g.lineTo(G[0].x,G[0].y-20); g.stroke();
+  g.beginPath(); g.moveTo(500,250); g.lineTo(560,282); g.lineTo(G[1].x,G[1].y-20); g.stroke();
+  g.strokeStyle='#17313c'; g.lineWidth=9;
+  g.beginPath(); g.moveTo(500,110); g.lineTo(500,250); g.stroke();
+  g.lineWidth=6;
+  g.beginPath(); g.moveTo(500,250); g.lineTo(440,282); g.lineTo(G[0].x,G[0].y-20); g.stroke();
+  g.beginPath(); g.moveTo(500,250); g.lineTo(560,282); g.lineTo(G[1].x,G[1].y-20); g.stroke();
+  // nostrils
+  g.fillStyle='#2b5464'; g.beginPath(); g.ellipse(500,96,34,17,0,0,6.284); g.fill();
+  g.fillStyle='#060d12'; g.beginPath(); g.arc(488,98,5,0,6.284); g.arc(512,98,5,0,6.284); g.fill();
+}
+function lungs(){
+  const G=lungGeom();
+  G.forEach(L=>{
+    g.fillStyle='rgba(20,52,62,.55)'; g.strokeStyle='#2f6273'; g.lineWidth=3;
+    g.beginPath(); g.ellipse(L.x,L.y,L.rx,L.ry,0,0,6.284); g.fill(); g.stroke();
+  });
+}
+function diaphragm(){
+  const y=diaphY();
+  g.strokeStyle=COL.co2; g.lineWidth=9; g.lineCap='round';
+  g.beginPath(); g.moveTo(286,y+34); g.quadraticCurveTo(500,y-78+96*S.k,714,y+34); g.stroke();
+  g.fillStyle='rgba(255,159,98,.1)';
+  g.beginPath(); g.moveTo(286,y+34); g.quadraticCurveTo(500,y-78+96*S.k,714,y+34); g.lineTo(714,620); g.lineTo(286,620); g.closePath(); g.fill();
+  // handle
+  const hy=y-40+96*S.k*0.5;
+  g.fillStyle=COL.co2; g.beginPath(); g.arc(500,hy,19,0,6.284); g.fill();
+  g.strokeStyle='#07151c'; g.lineWidth=3; g.lineCap='round';
+  g.beginPath(); g.moveTo(500,hy-8); g.lineTo(500,hy+8); g.moveTo(492,hy+1); g.lineTo(500,hy+9); g.lineTo(508,hy+1);
+  g.moveTo(492,hy-1); g.lineTo(500,hy-9); g.lineTo(508,hy-1); g.stroke();
+  S.handle={x:500,y:hy};
+}
+function sceneChest(){
+  torso();
+  out.forEach(p=>dot(p.x,p.y,2.1,COL.o2,.34));
+  lungs(); airway(); diaphragm();
+  inside.forEach(p=>dot(p.x,p.y,2.6,p.co2?COL.co2:COL.o2,p.tag?1:.8));
+  inside.filter(p=>p.tag).forEach(p=>{ g.strokeStyle=COL.warn; g.lineWidth=2; g.beginPath(); g.arc(p.x,p.y,9,0,6.284); g.stroke(); });
+  moving.forEach(m=>{
+    const q=lerpPath(airwayPts(m.s),m.t);
+    dot(q.x,q.y,3,m.co2?COL.co2:COL.o2,1);
+    if(m.tag){ g.strokeStyle=COL.warn; g.lineWidth=2; g.beginPath(); g.arc(q.x,q.y,9,0,6.284); g.stroke(); }
+  });
+  // pressure label
+  g.font='500 15px JetBrains Mono, monospace'; g.fillStyle=COL.muted;
+  g.fillText('outside air',40,46);
+  g.fillStyle=S.pIn<0.99?COL.o2:(S.pIn>1.01?COL.co2:COL.muted);
+  g.fillText(S.pIn<0.99?'air pushing in →':(S.pIn>1.01?'← air pushed out':'balanced — nothing moves'),40,70);
+}
+function sceneRoom(){
+  out.forEach(p=>dot(p.x,p.y,2.4,COL.o2,.5));
+  inside.forEach((p,i)=>{if(i%3===0)dot((p.x*1.3)%980+10,(p.y*1.7)%700+10,2.4,COL.o2,.5)});
+  const px=700,py=400,w=150,h=150;
+  g.strokeStyle=COL.warn; g.lineWidth=3; g.strokeRect(px,py,w,h);
+  g.fillStyle='rgba(255,209,102,.08)'; g.fillRect(px,py,w,h);
+  g.font='500 14px JetBrains Mono, monospace'; g.fillStyle=COL.warn;
+  g.fillText('pressure plate',px,py-14);
+  g.fillText(Math.round(S.hitRate)+' hits / sec',px,py+h+26);
+  out.forEach(p=>{ if(p.x>px&&p.x<px+w&&p.y>py&&p.y<py+h){ S.hitCount++;
+      if(p.x<px+6||p.x>px+w-6) p.vx*=-1; if(p.y<py+6||p.y>py+h-6) p.vy*=-1; }});
+  g.font='600 26px Archivo, sans-serif'; g.fillStyle=COL.ink;
+  g.fillText('Air is a crowd, not an emptiness',60,90);
+  g.font='400 16px Public Sans, sans-serif'; g.fillStyle=COL.muted;
+  g.fillText('Every dot is a packet of air molecules. They never stop moving,',60,122);
+  g.fillText('and they hammer every surface — that hammering is pressure.',60,146);
+}
+function sceneAlveolus(){
+  // sac
+  g.fillStyle='rgba(20,52,62,.5)'; g.strokeStyle='#2f6273'; g.lineWidth=4;
+  g.beginPath(); g.ellipse(390,300,210,180,0,0,6.284); g.fill(); g.stroke();
+  g.font='500 13px JetBrains Mono, monospace'; g.fillStyle=COL.muted;
+  g.fillText('air sac (alveolus)',186,92);
+  g.fillText('capillary — blood flowing past',540,668);
+  // capillary
+  g.strokeStyle='#4a2030'; g.lineWidth=66; g.lineCap='round';
+  g.beginPath(); g.moveTo(120,600); g.quadraticCurveTo(500,520,900,600); g.stroke();
+  g.strokeStyle='#6a2b3e'; g.lineWidth=58; g.beginPath(); g.moveTo(120,600); g.quadraticCurveTo(500,520,900,600); g.stroke();
+  const t=S.t;
+  for(let i=0;i<6;i++){
+    const u=((t*0.07+i/6)%1);
+    const x=120+u*780, y=600-((x-120)*(900-x))/ (780*780) * 320;
+    const loaded=u> .45;
+    g.fillStyle=loaded?'#ff5f72':'#8d3a4c';
+    g.beginPath(); g.ellipse(x,y,26,17,0,0,6.284); g.fill();
+    g.fillStyle='rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(x,y,11,7,0,0,6.284); g.fill();
+    if(loaded){ dot(x-9,y-4,3.5,COL.o2,1); dot(x+7,y+3,3.5,COL.o2,1); }
+  }
+  // molecules crossing
+  for(let i=0;i<14;i++){
+    const ph=((t*0.25+i/14)%1);
+    const x=300+ i*18, y1=420, y2=575;
+    const y=y1+(y2-y1)*ph;
+    dot(x,y,3.4,COL.o2,1-Math.abs(ph-.5));
+  }
+  for(let i=0;i<8;i++){
+    const ph=((t*0.22+i/8)%1);
+    const x=560+i*22, y=575-(575-420)*ph;
+    dot(x,y,3.4,COL.co2,1-Math.abs(ph-.5));
+  }
+  g.strokeStyle='#2a4b58'; g.setLineDash([7,7]); g.lineWidth=2;
+  g.beginPath(); g.moveTo(170,500); g.quadraticCurveTo(500,440,880,500); g.stroke(); g.setLineDash([]);
+  g.font='500 13px JetBrains Mono, monospace'; g.fillStyle=COL.muted;
+  g.font='500 12px JetBrains Mono, monospace'; g.fillText('wall thinner than a soap bubble', 636, 486);
+  dot(660,172,4,COL.o2,1); g.fillStyle=COL.o2; g.font='500 13px JetBrains Mono, monospace'; g.fillText('oxygen in',678,177);
+  dot(660,206,4,COL.co2,1); g.fillStyle=COL.co2; g.fillText('carbon dioxide out',678,211);
+}
+function sceneCell(){
+  const a=S.activity;
+  g.fillStyle='rgba(20,52,62,.45)'; g.strokeStyle='#2f6273'; g.lineWidth=4;
+  g.beginPath(); if(g.roundRect) g.roundRect(240,180,520,380,60); else g.rect(240,180,520,380); g.fill(); g.stroke();
+  g.font='500 14px JetBrains Mono, monospace'; g.fillStyle=COL.muted; g.fillText('one muscle cell',244,158);
+  const rate=0.6+a*1.6;
+  for(let i=0;i<10;i++){
+    const ph=((S.t*rate*0.2+i/10)%1);
+    dot(90+ph*140, 300+Math.sin(i)*34, 4, COL.o2, 1);
+    dot(90+ph*140, 430+Math.cos(i)*34, 4, '#9ad17a', 1);
+  }
+  g.fillStyle=COL.o2; g.font='500 13px JetBrains Mono, monospace'; g.fillText('oxygen',90,250);
+  g.fillStyle='#9ad17a'; g.fillText('glucose from food',90,500);
+  const burn=0.4+0.6*Math.abs(Math.sin(S.t*rate*2));
+  g.fillStyle='rgba(255,209,102,'+(0.1+0.25*burn*a)+')';
+  g.beginPath(); g.arc(500,370,100+40*burn*a,0,6.284); g.fill();
+  g.fillStyle=COL.warn; g.font='700 '+(26+10*a)+'px Archivo, sans-serif'; g.textAlign='center';
+  g.fillText('ENERGY',500,360); g.font='500 14px JetBrains Mono, monospace'; g.fillStyle=COL.muted;
+  g.fillText('respiration happens here',500,392); g.textAlign='left';
+  for(let i=0;i<8;i++){
+    const ph=((S.t*rate*0.18+i/8)%1);
+    dot(772+ph*150, 320+Math.sin(i*2)*26, 4, COL.co2, 1);
+    dot(772+ph*150, 448+Math.cos(i*2)*26, 3.4, '#7fb6d8', 1);
+  }
+  g.fillStyle=COL.co2; g.font='500 13px JetBrains Mono, monospace'; g.fillText('carbon dioxide',768,272);
+  g.fillStyle='#7fb6d8'; g.fillText('water',768,502);
+  const need=Math.round(12+a*14);
+  g.fillStyle=COL.ink; g.font='500 16px JetBrains Mono, monospace';
+  g.fillText('breaths needed: ~'+need+' per minute',240,636);
+}
+let last=0;
+function frame(ts){
+  const dt=Math.min(0.05,(ts-(last||ts))/1000); last=ts; S.t+=dt;
+  if(S.auto&&!reduce){ const u=(S.t*(S.rate/60))%1; S.k=u<0.45?0.5-0.5*Math.cos(Math.PI*(u/0.45)):0.5+0.5*Math.cos(Math.PI*((u-0.45)/0.55)); }
+  if(S.hold) S.held+=dt;
+  S.hitRate=S.hitRate*0.85+(S.hitCount/Math.max(dt,0.001))*0.15; S.hitCount=0;
+  clear();
+  if(S.scene==='room'){ out.forEach(p=>{p.x+=p.vx;p.y+=p.vy; if(p.x<8||p.x>992)p.vx*=-1; if(p.y<8||p.y>712)p.vy*=-1;}); sceneRoom(); }
+  else if(S.scene==='chest'){ stepParticles(dt); sceneChest(); }
+  else if(S.scene==='alveolus') sceneAlveolus();
+  else if(S.scene==='cell') sceneCell();
+  else if(S.scene==='data'){ out.forEach(p=>{p.x+=p.vx*.4;p.y+=p.vy*.4; if(p.x<8||p.x>992)p.vx*=-1; if(p.y<8||p.y>712)p.vy*=-1; dot(p.x,p.y,2,COL.o2,.25)}); sceneDataCard(); }
+  updateHud();
+  requestAnimationFrame(frame);
+}
+function sceneDataCard(){
+  g.textAlign='center'; g.fillStyle=COL.ink; g.font='700 42px Archivo, sans-serif';
+  g.fillText(S.counting?S.tapN:(S.restBpm?S.restBpm+' / min':'ready'),500,186);
+  g.font='500 15px JetBrains Mono, monospace'; g.fillStyle=COL.muted;
+  g.fillText(S.counting?'breaths counted · '+S.tLeft+' s left':'tap the button to start a 30-second count',500,224);
+  if(S.restBpm&&S.actBpm){
+    const bars=[[S.restBpm,'sitting',COL.o2],[S.actBpm,'after moving',COL.co2],[15,'textbook adult','#24404b']];
+    bars.forEach((b,i)=>{ const h=Math.min(300,b[0]*6), x=330+i*115;
+      g.fillStyle=b[2]; g.fillRect(x,600-h,66,h);
+      g.fillStyle=COL.ink; g.font='500 15px JetBrains Mono, monospace'; g.fillText(b[0],x+33,588-h);
+      g.fillStyle=COL.muted; g.font='500 11px JetBrains Mono, monospace'; g.fillText(b[1],x+33,626); });
+  }
+  g.textAlign='left';
+}
+requestAnimationFrame(frame);
+
+/* ===== pointer: drag the diaphragm ===== */
+function toVirtual(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*VW, y:(e.clientY-r.top)/r.height*VH}; }
+let drag=false;
+cv.addEventListener('pointerdown',e=>{
+  const p=toVirtual(e);
+  if(S.scene==='chest'&&S.handle&&Math.hypot(p.x-S.handle.x,p.y-S.handle.y)<70){ drag=true; S.auto=false; cv.setPointerCapture(e.pointerId); }
+  else if(S.scene==='chest'){
+    const m=moving.find(m=>{const q=lerpPath(airwayPts(m.s),m.t); return Math.hypot(q.x-p.x,q.y-p.y)<30;});
+    if(m){ m.tag=true; S.traced='airway'; }
+  }
+});
+cv.addEventListener('pointermove',e=>{ if(!drag) return; e.preventDefault();
+  const p=toVirtual(e); S.k=Math.max(0,Math.min(1,(p.y-460)/118));
+  if(S.k>0.55) done.pull=true; if(S.k<0.15&&done.pull) done.push=true; });
+cv.addEventListener('pointerup',()=>drag=false);
+cv.addEventListener('pointercancel',()=>drag=false);
+
+/* ===== HUD ===== */
+function updateHud(){
+  const h=$('#hud'); if(!h.dataset.k) return;
+  if(S.scene==='chest'){
+    const d=(S.pIn-1)*100;
+    h.children[0].querySelector('b').textContent=S.vol+' mL';
+    const pb=h.children[1];
+    pb.querySelector('b').textContent=(d>=0?'+':'−')+Math.abs(d).toFixed(1)+'%';
+    pb.querySelector('b').style.color=d<-0.5?COL.o2:(d>0.5?COL.co2:COL.muted);
+    pb.querySelector('i').style.width=Math.max(2,Math.min(100,50+d*14))+'%';
+    pb.querySelector('i').style.background=d<0?COL.o2:COL.co2;
+    h.children[2].querySelector('b').textContent=inside.length;
+  }
+}
+function hud(items){
+  const h=$('#hud'); h.dataset.k=items.length?'1':''; h.style.display=items.length?'flex':'none';
+  h.innerHTML=items.map(it=>'<div class="gauge"><span>'+it[0]+'</span><b>'+it[1]+'</b>'+(it[2]?'<div class="bar"><i></i></div>':'')+'</div>').join('');
+}
+
+/* ===== chapters ===== */
+const CH=[
+{t:'Air is <em>pressing</em> on you right now',scene:'room',
+ body:`<p>Nothing in this page is more important than this one idea: <strong>the air around you is not empty space.</strong> It is a crowd of molecules moving at about 1700 km per hour, bouncing off every surface they meet.</p>
+ <p>That constant hammering is what we call <strong>pressure</strong>. On every square centimetre of your skin, the air pushes with about the weight of a 1 kg packet of sugar. You do not feel it because it pushes equally from all sides.</p>
+ <p class="hi">हवा खाली जगह नहीं है — यह लगातार टकराती हुई भीड़ है।</p>`,
+ task:'Watch the pressure plate. Those hits per second are what the air is doing to every surface of your body, all the time.',
+ auto:d=>true, hud:[]},
+
+{t:'You do not <em>suck</em> air in',scene:'chest',
+ body:`<p>Here is your chest from the front. The orange sheet below the lungs is the <strong>diaphragm</strong> — a dome of muscle. The lungs themselves have no muscle at all; they cannot pull anything.</p>
+ <p>Drag the orange handle downward. Watch three things happen in order: the space gets bigger, the dots inside spread thinner, and the pressure gauge drops <strong>below</strong> the outside air. Only then does air come down the windpipe.</p>
+ <p>Nothing sucked. The outside air was always pushing — you just made room for it.</p>`,
+ task:'Drag the orange handle down until the pressure gauge goes negative and air starts streaming in through the nose.',
+ gate:()=>done.pull, hud:[['air in lungs','2300 mL'],['pressure vs outside','0.0%',1],['packets inside','150']]},
+
+{t:'And you do not <em>blow</em> it out either',scene:'chest',
+ body:`<p>Now push the handle back up. The diaphragm relaxes into its dome, the chest shrinks, and the same number of dots is squeezed into a smaller space.</p>
+ <p>More crowding means <strong>higher pressure inside than outside</strong> — so the air leaves on its own. At rest, breathing out costs you no muscle work at all. It is a stretched chest springing back.</p>
+ <p class="hi">साँस छोड़ने में आराम के समय कोई मेहनत नहीं लगती।</p>`,
+ task:'Push the handle back up and watch the gauge go positive and the flow reverse.',
+ gate:()=>done.push, hud:[['air in lungs','2300 mL'],['pressure vs outside','0.0%',1],['packets inside','150']]},
+
+{t:'The question that catches everyone',scene:'chest',
+ body:`<p>Suppose you pull the diaphragm halfway down and then <strong>hold it perfectly still</strong>, with your nose and mouth wide open.</p>`,
+ quiz:{q:'Does air keep flowing in while you hold the chest still?',
+  opts:['Yes — the chest is big, so air keeps coming','No — flow stops as soon as the pressures match','Yes, but only very slowly, forever'],
+  a:1,
+  run:()=>{S.auto=false;S.k=0.5;S.hold=false;},
+  why:`<b>Flow needs a pressure difference, not a big chest.</b> Air rushes in only while the inside pressure is lower than outside. The moment enough packets have arrived to even it out, everything stops — even though your chest is still stretched wide. This is why you have to keep <em>moving</em> the diaphragm to keep breathing. Volume alone moves nothing; <em>changing</em> volume does.`},
+ task:'Commit to an answer, then read what the simulation does.',
+ gate:()=>done.q4, hud:[['air in lungs','2300 mL'],['pressure vs outside','0.0%',1],['packets inside','150']]},
+
+{t:'Follow <em>one</em> packet of air',scene:'chest',
+ body:`<p>Start the automatic breathing below and watch the windpipe. Every dot travelling down it is air on its way to a lung.</p>
+ <p><strong>Tap any dot inside the windpipe</strong> to tag it. A yellow ring follows that one packet to the end of its journey: nostril → windpipe → bronchus → lung.</p>
+ <p>It does not stop there. The lungs hold about 300 million tiny sacs, and that is where the real work begins.</p>`,
+ task:'Tag one packet of air in the windpipe and follow it into a lung.',
+ gate:()=>done.trace, auto:()=>true, hud:[['air in lungs','2300 mL'],['pressure vs outside','0.0%',1],['packets inside','150']]},
+
+{t:'Where air finally <em>meets blood</em>',scene:'alveolus',
+ body:`<p>This is one air sac, magnified about a thousand times, with a blood vessel wrapped around it. The wall between them is thinner than a soap bubble.</p>
+ <p>Oxygen crosses into the blood and the red cells turn bright red as they carry it away. Carbon dioxide crosses the other way, out of the blood and into the sac, ready to leave on your next breath out.</p>
+ <p>So the air you breathe out still holds about <strong>16% oxygen</strong> — only a fifth of what came in was taken. That leftover oxygen is exactly why mouth-to-mouth rescue breathing can keep someone alive.</p>
+ <p class="hi">साँस छोड़ी हुई हवा में भी काफ़ी ऑक्सीजन बची रहती है।</p>`,
+ task:'Watch one red cell cross the sac and change colour as it picks up oxygen.',
+ hud:[]},
+
+{t:'Breathing is not <em>respiration</em>',scene:'cell',
+ body:`<p>This is the step most people never get told. Breathing moves air. <strong>Respiration</strong> is a chemical reaction inside every living cell, where oxygen and food release the energy you run on:</p>
+ <p style="font-family:var(--mono);font-size:14px;color:var(--warn)">glucose + oxygen → energy + carbon dioxide + water</p>
+ <p>Slide the activity level. As the cell burns faster it demands more oxygen and dumps more carbon dioxide — and that is <em>why</em> your breathing rate climbs when you run. Your lungs are responding to your cells.</p>`,
+ task:'Push the activity slider to full and watch what the cell demands.',
+ gate:()=>done.cell, hud:[]},
+
+{t:'Now measure a real person',scene:'data',
+ body:`<p>Textbook numbers are worth nothing until you check them against someone. Sit still, breathe normally and tap once for every breath <em>out</em> for 30 seconds.</p>
+ <p>Then move about for a minute — twenty jumping jacks, or a run up the stairs — and count again. The gap between your two bars is your cells asking for more oxygen.</p>
+ <p style="color:var(--warn)">Skip the activity round if you are unwell or breathless. Never hold your breath to test anything, and never in water.</p>`,
+ task:'Record a sitting count, then an after-activity count.',
+ gate:()=>done.data, hud:[]},
+
+{t:'What you can now <em>defend</em>',scene:'chest',
+ body:`<p>Four claims. For each one, say what you think — then the simulation or the evidence answers back. Getting one wrong and changing your mind is the single most scientific thing you can do today.</p>`,
+ myths:true, task:'Judge all four claims.', gate:()=>done.myths, auto:()=>true,
+ hud:[['air in lungs','2300 mL'],['pressure vs outside','0.0%',1],['packets inside','150']]}
+];
+
+let idx=0;
+function buildRail(){
+  const r=$('#rail'); r.innerHTML='';
+  CH.forEach((c,i)=>{const b=document.createElement('button'); b.textContent=i+1;
+    b.setAttribute('aria-label','Chapter '+(i+1)); if(i<=maxSeen) b.dataset.on='1';
+    b.setAttribute('aria-current',i===idx?'true':'false');
+    b.onclick=()=>{if(i<=maxSeen)go(i)}; r.appendChild(b);});
+}
+let maxSeen=0;
+function go(i){
+  idx=Math.max(0,Math.min(CH.length-1,i)); maxSeen=Math.max(maxSeen,idx);
+  const c=CH[idx];
+  S.scene=c.scene; S.hold=false; S.auto=!!(c.auto&&c.auto());
+  $('#ttl').innerHTML=c.t; $('#txt').innerHTML=c.body;
+  $('#pos').textContent=(idx+1)+' / '+CH.length;
+  $('#taskP').textContent=c.task||''; $('#task').hidden=!c.task;
+  hud(c.hud||[]);
+  const ex=$('#extra'); ex.innerHTML='';
+  if(c.quiz) ex.appendChild(quizBox(c.quiz,'q4'));
+  if([1,2,3,4,8].includes(idx)) ex.appendChild(chestControls());
+  if(idx===6) ex.appendChild(cellControls());
+  if(idx===7) ex.appendChild(dataControls());
+  if(c.myths) ex.appendChild(mythBox());
+  $('#back').disabled=false;
+  $('#next').textContent=idx===CH.length-1?'Start again':'Next';
+  buildRail(); refreshGate();
+}
+function refreshGate(){
+  const c=CH[idx];
+  const ok=!c.gate||c.gate();
+  $('#task').classList.toggle('done',ok);
+  $('#taskT').textContent=ok?'Done':'Do this';
+}
+setInterval(refreshGate,400);
+$('#next').onclick=()=>{ if(idx===CH.length-1){idx=0;go(0);window.scrollTo({top:0,behavior:'smooth'});} else go(idx+1); };
+$('#back').onclick=()=>{ window.location.href='../index.html?subject=labs56'; };
+
+function el(h){const d=document.createElement('div'); d.innerHTML=h; return d.firstElementChild;}
+function chestControls(){
+  const d=el(`<div class="ctrls">
+    <div class="ctrl"><label>Breathing rate <b id="vr">15 / min</b></label><input id="rr" type="range" min="8" max="34" value="${S.rate}"></div>
+    <div class="btnrow">
+      <button class="b" id="autoB">${S.auto?'Stop automatic':'Breathe automatically'}</button>
+      <button class="b ghost" id="holdB">Hold the chest still</button>
+    </div>
+    <p class="mini" id="holdNote" style="margin:0">Air moves only while the volume is changing.</p>
+  </div>`);
+  d.querySelector('#rr').oninput=e=>{S.rate=+e.target.value; d.querySelector('#vr').textContent=S.rate+' / min';};
+  d.querySelector('#autoB').onclick=e=>{S.auto=!S.auto; e.target.textContent=S.auto?'Stop automatic':'Breathe automatically';};
+  const hb=d.querySelector('#holdB');
+  hb.onclick=()=>{ S.hold=!S.hold; S.auto=S.hold?false:S.auto;
+    hb.textContent=S.hold?'Release':'Hold the chest still';
+    d.querySelector('#holdNote').textContent=S.hold?'Held. Watch the flow die the instant the pressures match — even though the chest is still wide open.':'Air moves only while the volume is changing.';
+    if(S.hold) done.q4=true; };
+  return d;
+}
+function cellControls(){
+  const d=el(`<div class="ctrls"><div class="ctrl"><label>Activity level <b id="va">resting</b></label>
+    <input id="aa" type="range" min="0" max="100" value="${S.activity*50}"></div>
+    <p class="mini" style="margin:0">Oxygen demand and carbon dioxide output both rise together.</p></div>`);
+  d.querySelector('#aa').oninput=e=>{const v=+e.target.value; S.activity=v/50;
+    d.querySelector('#va').textContent=v<20?'resting':v<55?'walking':v<85?'running':'sprinting';
+    if(v>85) done.cell=true;};
+  return d;
+}
+function dataControls(){
+  const d=el(`<div class="ctrls">
+    <div class="btnrow">
+      <button class="b" id="mRest" style="flex:1">Sitting still</button>
+      <button class="b ghost" id="mAct" style="flex:1">After moving</button>
+    </div>
+    <button class="b key" id="tapB" style="padding:18px;font-size:16px">Start 30-second count</button>
+    <p class="mini" id="dNote" style="margin:0">Count breaths out, not in — it is easier to feel.</p>
+  </div>`);
+  const setMode=m=>{S.mode=m;
+    d.querySelector('#mRest').classList.toggle('key',m==='rest');
+    d.querySelector('#mAct').classList.toggle('key',m==='act');
+    d.querySelector('#mRest').classList.toggle('ghost',m!=='rest');
+    d.querySelector('#mAct').classList.toggle('ghost',m!=='act');};
+  setMode(S.mode);
+  d.querySelector('#mRest').onclick=()=>setMode('rest');
+  d.querySelector('#mAct').onclick=()=>setMode('act');
+  const b=d.querySelector('#tapB');
+  b.onclick=()=>{
+    if(!S.counting){ S.counting=true; S.tapN=0; S.tLeft=30; b.textContent='Tap for each breath out';
+      S.timer=setInterval(()=>{S.tLeft--; if(S.tLeft<=0){clearInterval(S.timer); S.counting=false;
+        const bpm=S.tapN*2; if(S.mode==='rest')S.restBpm=bpm; else S.actBpm=bpm;
+        b.textContent='Start 30-second count';
+        const n=d.querySelector('#dNote');
+        if(S.restBpm&&S.actBpm){ done.data=true;
+          n.textContent='Sitting '+S.restBpm+', after moving '+S.actBpm+' — up '+Math.round((S.actBpm-S.restBpm)/Math.max(1,S.restBpm)*100)+'%. Your cells asked; your lungs answered.';
+        } else n.textContent=(S.mode==='rest'?'Resting':'Active')+' rate recorded: '+bpm+' per minute. Now do the other round.';
+      }},1000);
+    } else { S.tapN++; }
+  };
+  return d;
+}
+function quizBox(q,flag){
+  const d=el(`<div class="ctrls"><p style="margin:0;font-size:15px"><b>${q.q}</b></p><div class="btnrow" style="flex-direction:column" data-o></div><div class="verdict" hidden></div></div>`);
+  const box=d.querySelector('[data-o]');
+  q.opts.forEach((o,i)=>{const b=document.createElement('button'); b.className='b opt';
+    b.innerHTML='<i>'+String.fromCharCode(65+i)+'</i><span>'+o+'</span>';
+    b.onclick=()=>{ [...box.children].forEach(c=>c.disabled=true);
+      box.children[q.a].classList.add('right'); if(i!==q.a) b.classList.add('wrong');
+      if(q.run)q.run();
+      const v=d.querySelector('.verdict'); v.hidden=false; v.innerHTML=q.why;
+      done[flag]=true; };
+    box.appendChild(b);});
+  return d;
+}
+const MYTHS=[
+ {c:'Your lungs pull the air in.',t:false,
+  why:'Lungs contain no muscle. The diaphragm and rib muscles change the volume of the chest; the outside air does the pushing. Pull the handle in chapter 2 and watch the order of events — volume first, pressure second, flow third.'},
+ {c:'Breathing out takes effort, like blowing up a balloon.',t:false,
+  why:'At rest it takes none. The stretched chest springs back on its own. You only use muscles to breathe out when you blow hard, cough or sing.'},
+ {c:'The air you breathe out has no oxygen left in it.',t:false,
+  why:'Air in is about 21% oxygen; air out is about 16%. You keep only a fraction. That leftover is what makes rescue breathing possible.'},
+ {c:'A fish does not breathe, because it has no lungs.',t:false,
+  why:'It breathes through gills, taking dissolved oxygen out of water — and every one of its cells still respires exactly as yours do. Different organ, same chemistry.'}
+];
+function mythBox(){
+  const d=el('<div class="ctrls" id="mythC"></div>');
+  let n=0;
+  MYTHS.forEach(m=>{
+    const row=el(`<div style="border-bottom:1px solid var(--line);padding-bottom:11px"><p style="margin:0 0 8px;font-size:15px">“${m.c}”</p><div class="btnrow"></div><div class="verdict" hidden style="margin-top:9px"></div></div>`);
+    const br=row.querySelector('.btnrow');
+    [['True',true],['False',false]].forEach(([lbl,val])=>{
+      const b=document.createElement('button'); b.className='b'; b.textContent=lbl;
+      b.onclick=()=>{ [...br.children].forEach(c=>c.disabled=true);
+        const ok=val===m.t; b.classList.add(ok?'right':'wrong');
+        const v=row.querySelector('.verdict'); v.hidden=false;
+        v.innerHTML='<b>'+(ok?'Correct — ':'It is false. ')+'</b>'+m.why;
+        n++; if(n>=MYTHS.length) done.myths=true; };
+      br.appendChild(b);});
+    d.appendChild(row);
+  });
+  return d;
+}
+go(0);
+})();
+</script>
+</body>
+</html>

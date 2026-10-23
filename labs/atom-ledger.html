@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Atom Ledger</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@110,500;110,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+    <style>
+      :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+      body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
+      img{max-width:100%}
+      [hidden]{display:none!important}
+    </style>
+<style>
+/* Layout: a weighing bench on top, chapters below — third instrument in the same dark series */
+:root{
+  --bg:#0a0810; --panel:#141120; --panel2:#1c1829; --line:#2d2740;
+  --ink:#f0ecf7; --muted:#a398bd;
+  --rx:#c58cff; --ember:#ff7a59; --good:#5fd8a4; --bad:#ff6b6b; --gold:#ffd166;
+  --display:"Archivo",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --deva:"Noto Sans Devanagari",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5}
+.app{max-width:1100px; margin:0 auto; padding-inline:14px; padding-block:0 40px}
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:linear-gradient(var(--bg) 72%,transparent); padding-block:12px 8px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.brand{font-family:var(--display); font-weight:700; font-size:17px; letter-spacing:-.01em}
+.brand em{font-style:normal; color:var(--rx)}
+.kicker{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+.rail{display:flex; gap:5px; margin-left:auto}
+.rail button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:var(--mono);font-size:11px;cursor:pointer;padding:0}
+.rail button[data-on]{border-color:var(--rx); color:var(--rx)}
+.rail button[aria-current="true"]{background:var(--rx); border-color:var(--rx); color:#1b0f2b; font-weight:600}
+.split{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:18px; align-items:start}
+@media(max-width:860px){.split{grid-template-columns:1fr; gap:12px}}
+.stagewrap{position:sticky; top:calc(env(safe-area-inset-top,0px) + 52px); background:radial-gradient(120% 90% at 50% 8%,#1b1529 0%,#0a0810 72%); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+@media(max-width:860px){
+  .topbar{position:static; background:none; padding-block:10px 6px}
+  .stagewrap{top:calc(env(safe-area-inset-top,0px) + 6px)}
+  .rail{margin-left:0; width:100%; flex-wrap:wrap}
+}
+canvas{display:block; width:100%; height:auto; touch-action:none; cursor:pointer}
+.hud{display:none; gap:1px; background:var(--line); border-top:1px solid var(--line)}
+.hud .gauge{flex:1 1 0; min-width:0}
+.gauge{background:var(--panel); padding:7px 10px}
+.gauge span{display:block; font-family:var(--mono); font-size:8.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+.gauge b{font-family:var(--mono); font-size:15px; font-weight:500; font-variant-numeric:tabular-nums}
+.panel{display:flex; flex-direction:column; gap:14px; padding-block:14px 0}
+h1{font-family:var(--display); font-weight:700; font-size:clamp(25px,5.2vw,34px); line-height:1.08; letter-spacing:-.02em; margin:0; text-wrap:balance}
+h1 em{font-style:normal; color:var(--rx)}
+.body{color:#cfc5e0; max-width:56ch}
+.body strong{color:var(--ink)}
+.eq{font-family:var(--mono); font-size:15px; color:var(--gold); letter-spacing:.01em}
+.hi{font-family:var(--deva); color:var(--muted); font-size:14px}
+.task{border:1px solid var(--line); border-left:3px solid var(--ember); background:var(--panel); border-radius:0 8px 8px 0; padding:11px 13px}
+.task.done{border-left-color:var(--good)}
+.task .t{font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ember)}
+.task.done .t{color:var(--good)}
+.task p{margin:3px 0 0; font-size:14px; color:#cfc5e0}
+.ctrls{display:flex; flex-direction:column; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:13px}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap}
+button.b{font:inherit; cursor:pointer; border-radius:6px; padding:9px 14px; font-size:14px; font-weight:500; border:1px solid var(--line); background:var(--panel2); color:var(--ink)}
+button.b.key{background:var(--rx); border-color:var(--rx); color:#1b0f2b; font-weight:600}
+button.b.ghost{background:transparent}
+button.b:disabled{opacity:.4; cursor:not-allowed}
+button.b:focus-visible,.rail button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+button.b.right{border-color:var(--good); color:var(--good)}
+button.b.wrong{border-color:var(--bad); color:var(--bad)}
+.opt{text-align:left; width:100%; display:flex; gap:10px; align-items:flex-start; padding:11px 13px}
+.opt i{font-family:var(--mono); font-size:11px; color:var(--muted); font-style:normal; padding-top:2px}
+.verdict{font-size:14px; color:#cfc5e0; border-top:1px solid var(--line); padding-top:11px}
+.verdict b{color:var(--ink)}
+.nav{display:flex; gap:8px; align-items:center; padding-block:4px 0}
+.nav .sp{flex:1}
+.mini{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.coefrow{display:flex; align-items:center; gap:8px; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px}
+.coefrow:last-child{border-bottom:none; padding-bottom:0}
+.coefrow .f{font-family:var(--mono); font-size:15px}
+.step{display:flex; align-items:center; gap:7px}
+.step button{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:17px;cursor:pointer;line-height:1}
+.step b{font-family:var(--mono); font-size:17px; min-width:20px; text-align:center}
+input[type=range]{width:100%; accent-color:var(--rx)}
+.ctrl label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+.ctrl label b{color:var(--ink); font-weight:500}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="kicker">Class 10 · Chemical reactions and equations</div>
+      <div class="brand">The Atom <em>Ledger</em></div>
+    </div>
+    <div class="rail" id="rail"></div>
+  </div>
+
+  <div class="split">
+    <div class="stagewrap">
+      <canvas id="cv" width="1000" height="720" aria-label="Interactive atom-balance bench"></canvas>
+      <div class="hud" id="hud"></div>
+    </div>
+    <div class="panel">
+      <h1 id="ttl"></h1>
+      <div class="body" id="txt"></div>
+      <div id="extra"></div>
+      <div class="task" id="task"><span class="t" id="taskT">Do this</span><p id="taskP"></p></div>
+      <div class="nav">
+        <button class="b ghost" id="back">Back to experiments</button>
+        <span class="mini" id="pos"></span>
+        <span class="sp"></span>
+        <button class="b key" id="next">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const cv=$('#cv'), g=cv.getContext('2d');
+const VW=1000,VH=720;
+const C={ink:'#f0ecf7',muted:'#a398bd',line:'#2d2740',rx:'#c58cff',ember:'#ff7a59',good:'#5fd8a4',bad:'#ff6b6b',gold:'#ffd166'};
+const done={};
+
+/* ---------- chemistry data (CPK-style colours, real molar masses) ---------- */
+const EL={
+ H:{c:'#e9edf6',r:9,m:1},  O:{c:'#ff5f5f',r:13,m:16},  C:{c:'#5a6272',r:13,m:12},
+ N:{c:'#6b8cff',r:12,m:14}, Mg:{c:'#8ad66b',r:16,m:24}, Fe:{c:'#c98b5e',r:17,m:56},
+ Cu:{c:'#e0894a',r:17,m:63.5}, Pb:{c:'#9094ac',r:18,m:207}, I:{c:'#a96ce8',r:16,m:127},
+ K:{c:'#e06ab0',r:16,m:39}, S:{c:'#ffd166',r:15,m:32}, Zn:{c:'#9fb3c8',r:16,m:65}
+};
+const SP={
+ Mg:{a:['Mg'],l:'Mg'}, O2:{a:['O','O'],l:'O₂'}, MgO:{a:['Mg','O'],l:'MgO'},
+ H2:{a:['H','H'],l:'H₂'}, H2O:{a:['O','H','H'],l:'H₂O'},
+ Fe:{a:['Fe'],l:'Fe'}, Fe3O4:{a:['Fe','Fe','Fe','O','O','O','O'],l:'Fe₃O₄'},
+ CuO:{a:['Cu','O'],l:'CuO'}, Cu:{a:['Cu'],l:'Cu'}
+};
+const RX=[
+ {id:'mgo', name:'Magnesium ribbon burns in air', l:['Mg','O2'], r:['MgO'], sol:[2,1,2],
+  obs:'A dazzling white flame, and a white powder left behind.'},
+ {id:'h2o', name:'Hydrogen burns in oxygen', l:['H2','O2'], r:['H2O'], sol:[2,1,2],
+  obs:'A pop, a pale blue flame, and droplets of water on the cold glass.'},
+ {id:'fe', name:'Steam passed over red-hot iron', l:['Fe','H2O'], r:['Fe3O4','H2'], sol:[3,4,1,4],
+  obs:'The iron turns black and a gas collects that burns with a pop.'}
+];
+let rxi=0;
+const coefs={}; RX.forEach(r=>coefs[r.id]=r.l.concat(r.r).map(()=>1));
+function cur(){return RX[rxi]}
+function tally(side){
+  const r=cur(), sp=side==='l'?r.l:r.r, off=side==='l'?0:r.l.length, t={};
+  sp.forEach((s,i)=>{ const n=coefs[r.id][off+i];
+    SP[s].a.forEach(e=>t[e]=(t[e]||0)+n); });
+  return t;
+}
+function mass(side){
+  const t=tally(side); let m=0; for(const e in t) m+=t[e]*EL[e].m; return m;
+}
+function balanced(){
+  const a=tally('l'), b=tally('r');
+  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+  for(const k of keys) if((a[k]||0)!==(b[k]||0)) return false;
+  return true;
+}
+
+/* ---------- stage state ---------- */
+const S={scene:'bench', t:0, run:0, running:false, tilt:0,
+  type:'combination', redoxPick:{}, mixed:false, day:0, nailPred:{}, burnt:false};
+
+/* ---------- drawing helpers ---------- */
+function dot(x,y,r,c,a){g.globalAlpha=a==null?1:a;g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,6.284);g.fill();g.globalAlpha=1}
+function label(x,y,t,c,s,al){g.fillStyle=c||C.muted;g.font='500 '+(s||13)+'px JetBrains Mono, monospace';g.textAlign=al||'left';g.fillText(t,x,y);g.textAlign='left'}
+function atomDraw(x,y,el,hl){
+  const E=EL[el];
+  if(hl){ const grd=g.createRadialGradient(x,y,2,x,y,E.r*2.4);
+    grd.addColorStop(0,'rgba(255,209,102,.55)'); grd.addColorStop(1,'rgba(255,209,102,0)');
+    g.fillStyle=grd; g.beginPath(); g.arc(x,y,E.r*2.4,0,6.284); g.fill(); }
+  const grd=g.createRadialGradient(x-E.r*.35,y-E.r*.35,1,x,y,E.r);
+  grd.addColorStop(0,'#ffffff'); grd.addColorStop(.18,E.c); grd.addColorStop(1,shade(E.c,-40));
+  g.fillStyle=grd; g.beginPath(); g.arc(x,y,E.r,0,6.284); g.fill();
+  g.fillStyle=el==='H'?'#2a2440':'#140f20'; g.font='600 '+Math.round(E.r*0.95)+'px Public Sans, sans-serif';
+  g.textAlign='center'; g.textBaseline='middle'; g.fillText(el,x,y+1); g.textAlign='left'; g.textBaseline='alphabetic';
+}
+function shade(hex,amt){ const n=parseInt(hex.slice(1),16);
+  const r=Math.max(0,Math.min(255,(n>>16)+amt)), gg=Math.max(0,Math.min(255,((n>>8)&255)+amt)), b=Math.max(0,Math.min(255,(n&255)+amt));
+  return '#'+((r<<16)|(gg<<8)|b).toString(16).padStart(6,'0'); }
+function groupPos(center,i,n){
+  if(n===1) return [center];
+  const out=[center];
+  for(let k=1;k<n;k++){ const a=-Math.PI/2+(k-1)*(6.284/Math.max(2,n-1));
+    out.push({x:center.x+Math.cos(a)*25,y:center.y+Math.sin(a)*25}); }
+  return out;
+}
+/* lay out one side: returns {atoms:[{el,x,y}], groups:[{x,y,label,n}]} */
+function layout(side,x0,x1,y0){
+  const r=cur(), sp=side==='l'?r.l:r.r, off=side==='l'?0:r.l.length;
+  const items=[]; sp.forEach((s,i)=>{ for(let k=0;k<coefs[r.id][off+i];k++) items.push(s); });
+  const n=items.length, perRow=n<=2?Math.max(1,n):(n<=4?n:4);
+  const gapX=(x1-x0)/perRow, atoms=[], groups=[];
+  items.forEach((s,i)=>{
+    const cxp=x0+gapX*(i%perRow)+gapX/2, cyp=y0+Math.floor(i/perRow)*86;
+    const pos=groupPos({x:cxp,y:cyp},0,SP[s].a.length);
+    groups.push({x:cxp,y:cyp,label:SP[s].l,n:SP[s].a.length,pos});
+    SP[s].a.forEach((e,j)=>atoms.push({el:e,x:pos[j].x,y:pos[j].y}));
+  });
+  return {atoms,groups};
+}
+function drawGroups(L,alpha){
+  g.globalAlpha=alpha==null?1:alpha;
+  L.groups.forEach(gr=>{
+    g.strokeStyle='rgba(240,236,247,.28)'; g.lineWidth=5;
+    for(let j=1;j<gr.n;j++){ g.beginPath(); g.moveTo(gr.pos[0].x,gr.pos[0].y); g.lineTo(gr.pos[j].x,gr.pos[j].y); g.stroke(); }
+  });
+  L.atoms.forEach(a=>atomDraw(a.x,a.y,a.el));
+  L.groups.forEach(gr=>label(gr.x,gr.y+46,gr.label,C.muted,12,'center'));
+  g.globalAlpha=1;
+}
+function sortAtoms(list){ return list.slice().sort((a,b)=>a.el<b.el?-1:a.el>b.el?1:(a.y-b.y||a.x-b.x)); }
+
+/* ---------- scene: balancing bench ---------- */
+function sceneBench(){
+  const r=cur(), ml=mass('l'), mr=mass('r'), bal=balanced();
+  const diff=Math.max(-1,Math.min(1,(ml-mr)/Math.max(20,Math.max(ml,mr))));
+  S.tilt+=((bal?0:diff*0.11)-S.tilt)*0.1;
+  // beam
+  const px=500,py=196, arm=330, a=S.tilt;
+  g.strokeStyle=C.line; g.lineWidth=4;
+  g.beginPath(); g.moveTo(px-26,py+92); g.lineTo(px,py+6); g.lineTo(px+26,py+92); g.closePath(); g.stroke();
+  g.strokeStyle=bal?C.good:C.rx; g.lineWidth=7; g.lineCap='round';
+  const lx=px-Math.cos(a)*arm, ly=py+Math.sin(a)*arm*0.34;
+  const rx2=px+Math.cos(a)*arm, ry=py-Math.sin(a)*arm*0.34;
+  g.beginPath(); g.moveTo(lx,ly); g.lineTo(rx2,ry); g.stroke();
+  dot(px,py,9,bal?C.good:C.rx);
+  // pans
+  [[lx,ly,ml,'reactants'],[rx2,ry,mr,'products']].forEach(([x,y,m,nm],i)=>{
+    g.strokeStyle=C.line; g.lineWidth=2;
+    g.beginPath(); g.moveTo(x,y); g.lineTo(x,y+54); g.stroke();
+    g.strokeStyle=bal?C.good:C.muted; g.lineWidth=5;
+    g.beginPath(); g.arc(x,y+54,64,0,Math.PI); g.stroke();
+    label(x,y+40,nm,C.muted,11,'center');
+    label(x,y+92,m.toFixed(m%1?1:0)+' g',bal?C.good:C.ink,17,'center');
+  });
+  // molecules
+  const Lp=layout('l',50,470,398), Rp=layout('r',530,950,398);
+  if(S.running){
+    const u=Math.min(1,S.run), e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+    const A=sortAtoms(Lp.atoms), B=sortAtoms(Rp.atoms);
+    if(u<1){
+      g.globalAlpha=1-e*0.75;
+      Lp.groups.forEach(gr=>{ g.strokeStyle='rgba(240,236,247,.2)'; g.lineWidth=5;
+        for(let j=1;j<gr.n;j++){g.beginPath();g.moveTo(gr.pos[0].x,gr.pos[0].y);g.lineTo(gr.pos[j].x,gr.pos[j].y);g.stroke();} });
+      g.globalAlpha=1;
+    }
+    if(u>0.55) drawGroups(Rp,(u-0.55)/0.45*0.9);
+    A.forEach((at,i)=>{ const to=B[i]||at;
+      const x=at.x+(to.x-at.x)*e, y=at.y+(to.y-at.y)*e - Math.sin(e*Math.PI)*70;
+      atomDraw(x,y,at.el,u<1); });
+    label(500,318,u<1?'the same atoms, rearranging':'same atoms — new arrangement',C.gold,15,'center');
+  } else {
+    drawGroups(Lp); drawGroups(Rp);
+  }
+  // arrow
+  g.strokeStyle=C.muted; g.lineWidth=4; g.lineCap='round';
+  g.beginPath(); g.moveTo(476,352); g.lineTo(520,352); g.lineTo(508,342); g.moveTo(520,352); g.lineTo(508,362); g.stroke();
+  // ledger
+  ledger(ml,mr,bal);
+  label(500,46,r.name,C.ink,16,'center');
+  label(500,70,eqText(),bal?C.good:C.muted,15,'center');
+}
+function eqText(){
+  const r=cur(), c=coefs[r.id];
+  const f=(arr,off)=>arr.map((s,i)=>(c[off+i]>1?c[off+i]:'')+SP[s].l).join(' + ');
+  return f(r.l,0)+'  →  '+f(r.r,r.l.length);
+}
+function ledger(ml,mr,bal){
+  const a=tally('l'), b=tally('r');
+  const keys=[...new Set([...Object.keys(a),...Object.keys(b)])];
+  const y=610, x0=500-(keys.length*118)/2;
+  label(500,586,'ATOM LEDGER — every element must match',C.muted,11,'center');
+  keys.forEach((k,i)=>{
+    const x=x0+i*118+59, ok=(a[k]||0)===(b[k]||0);
+    g.fillStyle=ok?'rgba(95,216,164,.1)':'rgba(255,107,107,.1)';
+    g.strokeStyle=ok?C.good:C.bad; g.lineWidth=1.6;
+    g.beginPath(); g.rect(x-52,y-20,104,56); g.fill(); g.stroke();
+    atomDraw(x-32,y+4,k);
+    g.fillStyle=ok?C.good:C.bad; g.font='500 17px JetBrains Mono, monospace'; g.textAlign='center';
+    g.fillText((a[k]||0)+' : '+(b[k]||0),x+16,y+10); g.textAlign='left';
+    label(x+16,y+28,ok?'match':'mismatch',ok?C.good:C.bad,9,'center');
+  });
+  label(500,688,bal?'Balanced — and the two pans weigh exactly the same':'Not balanced yet — adjust the numbers in front of each formula',bal?C.good:C.ember,13,'center');
+}
+
+/* ---------- scene: types of reaction ---------- */
+const TYPES={
+ combination:{t:'Combination',sch:[['A','B'],['AB']],
+  eq:'CaO + H₂O → Ca(OH)₂',obs:'Quicklime hisses, the beaker gets hot, slaked lime forms.',
+  note:'Two or more substances join into one. Heat is usually given out, so most are exothermic.'},
+ decomposition:{t:'Decomposition',sch:[['AB'],['A','B']],
+  eq:'2FeSO₄ →(heat) Fe₂O₃ + SO₂ + SO₃',obs:'Green crystals turn brown, with a smell of burning sulphur.',
+  note:'One substance splits into two or more. It needs energy pushed in — heat, light or electricity.'},
+ displacement:{t:'Displacement',sch:[['A','BC'],['AC','B']],
+  eq:'Fe + CuSO₄ → FeSO₄ + Cu',obs:'The blue solution fades to green and the iron nail turns brown.',
+  note:'A more reactive element pushes a less reactive one out of its compound.'},
+ double:{t:'Double displacement',sch:[['AB','CD'],['AD','CB']],
+  eq:'Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃',obs:'A bright yellow solid drops out of a clear mixture.',
+  note:'Two compounds swap partners. If one new pair is insoluble it falls out as a precipitate.'},
+ redox:{t:'Oxidation and reduction',sch:[['CuO','H₂'],['Cu','H₂O']],
+  eq:'CuO + H₂ → Cu + H₂O',obs:'Black copper oxide turns reddish-brown as it loses its oxygen.',
+  note:'One substance gains oxygen while the other loses it. The two always happen together.'}
+};
+function sceneTypes(){
+  const T=TYPES[S.type];
+  label(500,56,T.t.toUpperCase(),C.rx,20,'center');
+  const box=(x,y,txt,col)=>{
+    g.fillStyle='rgba(197,140,255,.10)'; g.strokeStyle=col||C.rx; g.lineWidth=2.4;
+    g.beginPath(); if(g.roundRect) g.roundRect(x-62,y-34,124,68,12); else g.rect(x-62,y-34,124,68);
+    g.fill(); g.stroke();
+    g.fillStyle=C.ink; g.font='600 20px JetBrains Mono, monospace'; g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(txt,x,y); g.textAlign='left'; g.textBaseline='alphabetic';
+  };
+  const ph=(S.t*0.5)%1;
+  const left=T.sch[0], right=T.sch[1];
+  left.forEach((s,i)=>{ const x=190+i*170, y=220+(left.length>1?0:0);
+    box(x+ph*40*(i?-1:1),y,s,C.ember); });
+  right.forEach((s,i)=>{ const x=640+i*170, y=220;
+    box(x,y,s,C.good); });
+  g.strokeStyle=C.muted; g.lineWidth=4; g.lineCap='round';
+  g.beginPath(); g.moveTo(480,220); g.lineTo(540,220); g.lineTo(526,208); g.moveTo(540,220); g.lineTo(526,232); g.stroke();
+  label(500,330,T.note,C.ink,15,'center');
+  g.fillStyle='rgba(255,209,102,.07)'; g.strokeStyle='#4a3f22'; g.lineWidth=2;
+  g.beginPath(); if(g.roundRect) g.roundRect(120,392,760,180,14); else g.rect(120,392,760,180); g.fill(); g.stroke();
+  label(500,436,'IN THE LAB',C.gold,11,'center');
+  label(500,476,T.eq,C.gold,19,'center');
+  label(500,522,T.obs,C.muted,14,'center');
+  label(500,626,'what you SEE is the evidence · what you WRITE is the explanation',C.muted,12,'center');
+}
+
+/* ---------- scene: redox ---------- */
+function sceneRedox(){
+  label(500,56,'CuO  +  H₂   →   Cu  +  H₂O',C.gold,21,'center');
+  const u=(S.t*0.35)%1;
+  const cuo={x:250,y:300}, h2={x:250,y:470}, cu={x:760,y:300}, h2o={x:760,y:470};
+  // CuO
+  atomDraw(cuo.x,cuo.y,'Cu',S.redoxPick.CuO==='reduced');
+  const ox={x:cuo.x+(h2o.x-cuo.x)*u, y:cuo.y+(h2o.y-cuo.y)*u};
+  g.strokeStyle='rgba(240,236,247,.25)'; g.lineWidth=5;
+  if(u<0.1){g.beginPath();g.moveTo(cuo.x,cuo.y);g.lineTo(cuo.x+30,cuo.y+18);g.stroke();}
+  atomDraw(ox.x,ox.y,'O',true);
+  label(cuo.x,cuo.y-44,'copper oxide — black',C.muted,12,'center');
+  // H2
+  g.strokeStyle='rgba(240,236,247,.25)'; g.lineWidth=5;
+  g.beginPath(); g.moveTo(h2.x-16,h2.y); g.lineTo(h2.x+16,h2.y); g.stroke();
+  atomDraw(h2.x-16,h2.y,'H',S.redoxPick.H2==='oxidised'); atomDraw(h2.x+16,h2.y,'H',S.redoxPick.H2==='oxidised');
+  label(h2.x,h2.y+50,'hydrogen gas',C.muted,12,'center');
+  // products
+  g.globalAlpha=0.25+0.75*u;
+  atomDraw(cu.x,cu.y,'Cu'); label(cu.x,cu.y-44,'copper — reddish brown',C.muted,12,'center');
+  g.strokeStyle='rgba(240,236,247,.25)'; g.lineWidth=5;
+  g.beginPath(); g.moveTo(h2o.x,h2o.y); g.lineTo(h2o.x-28,h2o.y+22); g.moveTo(h2o.x,h2o.y); g.lineTo(h2o.x+28,h2o.y+22); g.stroke();
+  atomDraw(h2o.x-28,h2o.y+22,'H'); atomDraw(h2o.x+28,h2o.y+22,'H');
+  label(h2o.x,h2o.y+70,'water',C.muted,12,'center');
+  g.globalAlpha=1;
+  label(500,610,'follow the red oxygen atom: it leaves copper and joins hydrogen',C.gold,14,'center');
+  label(500,644,'copper LOST oxygen → reduced   ·   hydrogen GAINED oxygen → oxidised',C.muted,13,'center');
+  label(500,678,'one cannot happen without the other — together they are a redox reaction',C.muted,13,'center');
+}
+
+/* ---------- scene: precipitate ---------- */
+const IONS=[];
+for(let i=0;i<10;i++) IONS.push({k:'Pb',x:160+Math.random()*260,y:260+Math.random()*240,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.5)*1.2,p:null});
+for(let i=0;i<20;i++) IONS.push({k:'I',x:580+Math.random()*260,y:260+Math.random()*240,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.5)*1.2,p:null});
+for(let i=0;i<20;i++) IONS.push({k:'K',x:580+Math.random()*260,y:260+Math.random()*240,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.5)*1.2,p:null});
+for(let i=0;i<20;i++) IONS.push({k:'NO3',x:160+Math.random()*260,y:260+Math.random()*240,vx:(Math.random()-.5)*1.2,vy:(Math.random()-.5)*1.2,p:null});
+const IONC={Pb:'#9094ac',I:'#a96ce8',K:'#e06ab0',NO3:'#6b8cff'};
+const IONL={Pb:'Pb²⁺',I:'I⁻',K:'K⁺',NO3:'NO₃⁻'};
+function scenePrecip(){
+  const bx=S.mixed?140:140, bw=S.mixed?720:320;
+  // beakers
+  const beaker=(x,w,lbl)=>{ g.strokeStyle=C.line; g.lineWidth=4;
+    g.beginPath(); g.moveTo(x,200); g.lineTo(x,560); g.lineTo(x+w,560); g.lineTo(x+w,200); g.stroke();
+    g.fillStyle='rgba(197,140,255,.05)'; g.fillRect(x,240,w,320);
+    label(x+w/2,186,lbl,C.muted,13,'center'); };
+  if(!S.mixed){ beaker(140,320,'lead nitrate solution — colourless'); beaker(540,320,'potassium iodide — colourless'); }
+  else beaker(140,720,'mixed — watch what drops out');
+  IONS.forEach(io=>{
+    if(io.p){ io.y+=1.6; if(io.y>540) io.y=540; }
+    else{
+      io.x+=io.vx; io.y+=io.vy;
+      const L=S.mixed?150:(io.k==='Pb'||io.k==='NO3'?150:550), R=S.mixed?850:(io.k==='Pb'||io.k==='NO3'?450:850);
+      if(io.x<L||io.x>R) io.vx*=-1; if(io.y<250||io.y>545) io.vy*=-1;
+    }
+  });
+  if(S.mixed){
+    const freePb=IONS.filter(i=>i.k==='Pb'&&!i.p), freeI=IONS.filter(i=>i.k==='I'&&!i.p);
+    freePb.forEach(p=>{ freeI.forEach(i=>{ if(!p.p&&!i.p&&Math.hypot(p.x-i.x,p.y-i.y)<34){ p.p=1; i.p=1; } }); });
+  }
+  IONS.forEach(io=>{
+    if(io.p){ dot(io.x,io.y,9,'#ffe14d',1); }
+    else { dot(io.x,io.y,13,IONC[io.k],.9);
+      g.fillStyle='#140f20'; g.font='600 10px Public Sans, sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+      g.fillText(IONL[io.k],io.x,io.y+1); g.textAlign='left'; g.textBaseline='alphabetic'; }
+  });
+  const solid=IONS.filter(i=>i.p).length;
+  label(500,116,'Pb(NO₃)₂  +  2KI   →   PbI₂↓  +  2KNO₃',C.gold,19,'center');
+  label(500,146,S.mixed?'lead ions and iodide ions have found each other':'four kinds of ion, drifting in two separate beakers',C.muted,13,'center');
+  if(S.mixed&&solid>8) label(500,620,'the yellow solid is lead iodide — a precipitate · अवक्षेप',C.gold,15,'center');
+  label(500,660,'K⁺ and NO₃⁻ stay dissolved and invisible — they are spectator ions',C.muted,13,'center');
+}
+
+/* ---------- scene: rusting nails ---------- */
+const TUBES=[
+ {id:'t1',lbl:'nail in water + air',rust:1,why:'Both water and oxygen are present, so rust forms steadily.'},
+ {id:'t2',lbl:'boiled water, oil on top',rust:0,why:'Boiling drove the dissolved air out and the oil layer keeps more from entering. No oxygen, no rust.'},
+ {id:'t3',lbl:'dry air, drying agent',rust:0,why:'Plenty of oxygen but no water at all. Rusting needs both.'},
+ {id:'t4',lbl:'salt water + air',rust:2,why:'Salt speeds the process up — the same reason coastal iron and car bodies on salted roads rust fastest.'}
+];
+function sceneNails(){
+  label(500,56,'Four test tubes, one nail each, ten days',C.ink,17,'center');
+  label(500,84,'change one thing at a time, keep everything else the same',C.muted,13,'center');
+  TUBES.forEach((t,i)=>{
+    const x=170+i*220, y=160;
+    g.strokeStyle=C.line; g.lineWidth=4;
+    g.beginPath(); g.moveTo(x-42,y); g.lineTo(x-42,y+300); g.quadraticCurveTo(x,y+348,x+42,y+300); g.lineTo(x+42,y); g.stroke();
+    if(i!==2){ g.fillStyle='rgba(107,140,255,.14)'; g.beginPath();
+      g.moveTo(x-38,y+120); g.lineTo(x-38,y+300); g.quadraticCurveTo(x,y+342,x+38,y+300); g.lineTo(x+38,y+120); g.closePath(); g.fill(); }
+    if(i===1){ g.fillStyle='rgba(255,209,102,.25)'; g.fillRect(x-38,y+112,76,16); label(x,y+106,'oil',C.gold,10,'center'); }
+    if(i===2){ g.fillStyle='rgba(197,140,255,.12)'; g.fillRect(x-38,y+250,76,54); label(x,y+334,'drying agent',C.muted,10,'center'); }
+    const rust=Math.min(1,(S.day/10)*t.rust);
+    g.strokeStyle='#b9c0d0'; g.lineWidth=11; g.lineCap='round';
+    g.beginPath(); g.moveTo(x,y+170); g.lineTo(x,y+280); g.stroke();
+    g.strokeStyle='#c2603a'; g.lineWidth=11; g.globalAlpha=rust;
+    g.beginPath(); g.moveTo(x,y+170); g.lineTo(x,y+280); g.stroke(); g.globalAlpha=1;
+    if(rust>0.3){ for(let k=0;k<10;k++){ dot(x+(Math.random()-.5)*16,y+180+Math.random()*96,2.4,'#d4753f',rust); } }
+    label(x,y+372,t.lbl,C.muted,11,'center');
+    const pr=S.nailPred[t.id];
+    if(pr!=null){ const ok=(pr>0)===(t.rust>0);
+      label(x,y+396,pr?'you said: rusts':'you said: no rust',ok?C.good:C.bad,11,'center'); }
+  });
+  label(500,628,'day '+S.day+' of 10',C.ink,17,'center');
+  label(500,662,'the only fair test changes one factor at a time — that is what makes these four a control set',C.muted,12,'center');
+  label(500,694,'4Fe + 3O₂ + xH₂O → 2Fe₂O₃·xH₂O   (rust) · संक्षारण',C.gold,13,'center');
+}
+
+/* ---------- loop ---------- */
+let last=0;
+function frame(ts){
+  const dt=Math.min(.05,(ts-(last||ts))/1000); last=ts; S.t+=dt;
+  if(S.running){ S.run+=dt*0.55; if(S.run>=1.6){S.running=false;S.run=0;} }
+  g.clearRect(0,0,VW,VH);
+  if(S.scene==='bench') sceneBench();
+  else if(S.scene==='types') sceneTypes();
+  else if(S.scene==='redox') sceneRedox();
+  else if(S.scene==='precip') scenePrecipSafe();
+  else if(S.scene==='nails') sceneNails();
+  updateHud();
+  requestAnimationFrame(frame);
+}
+function scenePrecipSafe(){ try{ scenePrecip(); }catch(e){} }
+requestAnimationFrame(frame);
+
+/* ---------- hud ---------- */
+function hud(items){ const h=$('#hud'); h.dataset.k=items.length?'1':''; h.style.display=items.length?'flex':'none';
+  h.innerHTML=items.map(i=>'<div class="gauge"><span>'+i+'</span><b>—</b></div>').join(''); }
+function updateHud(){
+  const h=$('#hud'); if(!h.dataset.k) return;
+  const set=(i,v,c)=>{ if(h.children[i]){ h.children[i].querySelector('b').textContent=v; h.children[i].querySelector('b').style.color=c||C.ink; } };
+  if(S.scene==='bench'){
+    const ml=mass('l'), mr=mass('r'), b=balanced();
+    set(0,ml.toFixed(ml%1?1:0)+' g'); set(1,mr.toFixed(mr%1?1:0)+' g');
+    set(2,(ml===mr?'equal':(ml>mr?'left heavier':'right heavier')),ml===mr?C.good:C.ember);
+    set(3,b?'balanced':'not yet',b?C.good:C.bad);
+  }
+}
+
+/* ---------- interaction ---------- */
+cv.addEventListener('pointerdown',()=>{ if(S.scene==='precip'&&!S.mixed){S.mixed=true; done.mix=true;} });
+
+/* ---------- chapters ---------- */
+const CH=[
+{t:'Burnt magnesium weighs <em>more</em> than the ribbon',scene:'bench',rx:0,preset:'sol',
+ body:`<p>Burn a 48 g coil of magnesium ribbon and the white ash left behind weighs 80 g. Not less. <strong>More.</strong></p>
+ <p>Nothing was created. The missing 32 g walked in from the air — invisible oxygen, which has mass like everything else. Press <em>Run the reaction</em> and watch the atoms themselves: every single one that goes in comes out again, just arranged differently.</p>
+ <p>This is the whole chapter in one sentence. A chemical reaction never makes atoms and never destroys them. It only <strong>rearranges</strong> them.</p>
+ <p class="hi">रासायनिक अभिक्रिया में परमाणु न बनते हैं, न नष्ट होते हैं — केवल पुनर्व्यवस्थित होते हैं।</p>`,
+ task:'Run the reaction and watch the pans end up equal.', gate:()=>done.run,
+ hud:['reactant side','product side','balance','state']},
+
+{t:'Why equations must be <em>balanced</em>',scene:'bench',rx:1,preset:'bad',
+ body:`<p>An unbalanced equation is a lie about atoms. Here is hydrogen burning, written carelessly: <span class="eq">H₂ + O₂ → H₂O</span></p>
+ <p>Count the oxygen in the ledger at the bottom of the bench. Two go in, one comes out. One oxygen atom has quietly vanished — and the pans refuse to balance, because nature does not allow it.</p>
+ <p>Fix it with the counters. You may only change the <strong>numbers in front</strong> of a formula, never the small numbers inside it. Changing H₂O into H₂O₂ does not balance an equation; it changes water into a completely different substance.</p>`,
+ task:'Balance it so every element reads a matching pair, then run it.',
+ gate:()=>done.bal1, coefs:true, hud:['reactant side','product side','balance','state']},
+
+{t:'A harder one, same rule',scene:'bench',rx:2,preset:'bad',
+ body:`<p>Steam over red-hot iron. Four substances, seven elements' worth of bookkeeping: <span class="eq">Fe + H₂O → Fe₃O₄ + H₂</span></p>
+ <p>Work element by element, leaving hydrogen for last since it appears in two places on the right. The ledger tells you instantly which element is still wrong — you never have to guess.</p>
+ <p>When it balances, the pans settle and the grams match too: <strong>168 + 72 = 232 + 8</strong>. Mass is conserved because atoms are conserved. The grams were never a separate rule.</p>`,
+ task:'Balance all three elements and run it.', gate:()=>done.bal2,
+ coefs:true, hud:['reactant side','product side','balance','state']},
+
+{t:'Five patterns cover <em>almost everything</em>',scene:'types',
+ body:`<p>Thousands of reactions in your syllabus, five shapes. Tap each one to see the pattern, the real experiment from your book, and the observation you would record in the lab.</p>
+ <p>Learn the shape, not the list. Once you can see <span class="eq">A + BC → AC + B</span> in an equation, you no longer have to remember which page it was on.</p>`,
+ task:'Open all five patterns.', gate:()=>done.types5, hud:[]},
+
+{t:'Oxidation and reduction are <em>one event</em>',scene:'redox',
+ body:`<p>Black copper oxide is heated in hydrogen gas. Watch the red oxygen atom: it leaves the copper and joins the hydrogen.</p>
+ <p>Copper <strong>lost</strong> oxygen — it was reduced. Hydrogen <strong>gained</strong> oxygen — it was oxidised. Neither could happen alone; the oxygen had to go somewhere. That is why these are called redox reactions.</p>
+ <p>The same idea explains rusting iron, a cut apple turning brown, and oil going rancid in a packet of chips.</p>
+ <p class="hi">उपचयन और अपचयन हमेशा साथ-साथ होते हैं।</p>`,
+ task:'Say which substance was oxidised and which was reduced.', gate:()=>done.redox, hud:[]},
+
+{t:'How you <em>know</em> a reaction happened',scene:'precip',
+ body:`<p>You cannot see atoms. You can only see the signs they leave: a colour change, a gas, a temperature change, a smell, or a solid appearing from clear liquids.</p>
+ <p>Two colourless solutions here. Tap the stage to mix them. Lead ions and iodide ions meet, pair up, and drop out as a bright yellow solid, while potassium and nitrate ions drift on unchanged — present, but taking no part.</p>
+ <p>That yellow solid is your evidence. <strong>Nothing visible happened to half the ions in the beaker.</strong></p>`,
+ task:'Tap the stage to mix the two solutions.', gate:()=>done.mix, hud:[]},
+
+{t:'Rusting, tested <em>properly</em>',scene:'nails',
+ body:`<p>Everyone says rust needs air and water. Prove it. Four identical nails, four conditions, one factor changed at a time.</p>
+ <p>Predict each tube before you advance the days. A prediction you committed to is worth ten you make up after seeing the answer.</p>
+ <p>Rusting eats about one fifth of all the iron produced each year. Paint, grease, galvanising and stainless steel all exist to break one of the two conditions you are about to identify.</p>
+ <p class="hi">संक्षारण रोकने के लिए लोहे को हवा या पानी से अलग करना पड़ता है।</p>`,
+ task:'Predict all four tubes, then run the ten days.', gate:()=>done.nails, hud:[]},
+
+{t:'Four claims, one <em>ledger</em>',scene:'bench',rx:0,preset:'sol',
+ body:`<p>You now have a rule strong enough to test claims with: atoms are never created or destroyed. Judge each statement, then read why.</p>`,
+ myths:true, task:'Judge all four claims.', gate:()=>done.myths,
+ hud:['reactant side','product side','balance','state']}
+];
+
+let idx=0,maxSeen=0;
+function buildRail(){ const r=$('#rail'); r.innerHTML='';
+  CH.forEach((c,i)=>{const b=document.createElement('button'); b.textContent=i+1;
+    b.setAttribute('aria-label','Chapter '+(i+1)); if(i<=maxSeen)b.dataset.on='1';
+    b.setAttribute('aria-current',i===idx?'true':'false');
+    b.onclick=()=>{if(i<=maxSeen)go(i)}; r.appendChild(b);});}
+function go(i){
+  idx=Math.max(0,Math.min(CH.length-1,i)); maxSeen=Math.max(maxSeen,idx);
+  const c=CH[idx];
+  S.scene=c.scene; S.running=false; S.run=0;
+  if(c.rx!=null){ rxi=c.rx; const r=cur();
+    coefs[r.id]=c.preset==='sol'?r.sol.slice():r.l.concat(r.r).map(()=>1); }
+  $('#ttl').innerHTML=c.t; $('#txt').innerHTML=c.body;
+  $('#pos').textContent=(idx+1)+' / '+CH.length;
+  $('#taskP').textContent=c.task||'';
+  hud(c.hud||[]);
+  const ex=$('#extra'); ex.innerHTML='';
+  if(c.scene==='bench'&&!c.myths) ex.appendChild(benchControls(c));
+  if(c.scene==='types') ex.appendChild(typeControls());
+  if(c.scene==='redox') ex.appendChild(redoxControls());
+  if(c.scene==='precip') ex.appendChild(precipControls());
+  if(c.scene==='nails') ex.appendChild(nailControls());
+  if(c.myths) ex.appendChild(mythBox());
+  $('#back').disabled=false;
+  $('#next').textContent=idx===CH.length-1?'Start again':'Next';
+  buildRail(); refresh();
+}
+function refresh(){ const c=CH[idx], ok=!c.gate||c.gate();
+  $('#task').classList.toggle('done',ok); $('#taskT').textContent=ok?'Done':'Do this'; }
+setInterval(refresh,400);
+$('#next').onclick=()=>{ if(idx===CH.length-1){go(0);window.scrollTo({top:0,behavior:'smooth'});} else go(idx+1); };
+$('#back').onclick=()=>{ window.location.href='../index.html?subject=labs56'; };
+function el(h){const d=document.createElement('div'); d.innerHTML=h; return d.firstElementChild;}
+
+function benchControls(ch){
+  const r=cur(), names=r.l.concat(r.r);
+  const d=el('<div class="ctrls"></div>');
+  if(ch.coefs){
+    names.forEach((s,i)=>{
+      const row=el('<div class="coefrow"><span class="f">'+SP[s].l+(i===r.l.length-1?'':'')+'</span><span class="step"><button aria-label="less">−</button><b>1</b><button aria-label="more">+</button></span></div>');
+      const b=row.querySelector('b'), btns=row.querySelectorAll('button');
+      const upd=v=>{ coefs[r.id][i]=Math.max(1,Math.min(9,v)); b.textContent=coefs[r.id][i]; mark(); };
+      btns[0].onclick=()=>upd(coefs[r.id][i]-1); btns[1].onclick=()=>upd(coefs[r.id][i]+1);
+      b.textContent=coefs[r.id][i];
+      d.appendChild(row);
+    });
+    d.appendChild(el('<p class="mini" id="st" style="margin:0">change only the big numbers in front</p>'));
+  }
+  const run=el('<button class="b key" id="runB">Run the reaction</button>');
+  run.onclick=()=>{ if(!balanced()){ const st=d.querySelector('#st'); if(st){st.textContent='not balanced — the ledger at the bottom shows which element is short'; st.style.color='var(--bad)';} return; }
+    S.running=true; S.run=0; done.run=true;
+    if(r.id==='h2o') done.bal1=true; if(r.id==='fe') done.bal2=true; };
+  d.appendChild(run);
+  function mark(){ const st=d.querySelector('#st'); if(!st) return;
+    if(balanced()){ st.textContent='balanced — now run it'; st.style.color='var(--good)';
+      if(r.id==='h2o') done.bal1=true; if(r.id==='fe') done.bal2=true; }
+    else { st.textContent='change only the big numbers in front'; st.style.color=''; } }
+  mark();
+  return d;
+}
+function typeControls(){
+  const d=el('<div class="ctrls"><div class="btnrow" id="tb"></div><div class="verdict" id="tv" hidden></div></div>');
+  const seen=new Set();
+  Object.keys(TYPES).forEach(k=>{
+    const b=document.createElement('button'); b.className='b'; b.textContent=TYPES[k].t;
+    b.onclick=()=>{ S.type=k; seen.add(k);
+      [...d.querySelector('#tb').children].forEach(c=>c.classList.remove('key')); b.classList.add('key');
+      const v=d.querySelector('#tv'); v.hidden=false;
+      v.innerHTML='<b>'+TYPES[k].t+'.</b> '+TYPES[k].note+'<br><span class="eq">'+TYPES[k].eq+'</span><br><span class="mini">observation</span> '+TYPES[k].obs;
+      if(seen.size>=5) done.types5=true; };
+    d.querySelector('#tb').appendChild(b);
+  });
+  return d;
+}
+function redoxControls(){
+  const d=el('<div class="ctrls"><p style="margin:0;font-size:15px"><b>In CuO + H₂ → Cu + H₂O, which statement is right?</b></p><div class="btnrow" style="flex-direction:column" id="ro"></div><div class="verdict" id="rv" hidden></div></div>');
+  const opts=[
+   ['Copper oxide is reduced, hydrogen is oxidised',1],
+   ['Copper oxide is oxidised, hydrogen is reduced',0],
+   ['Only reduction happens here — nothing is oxidised',0]];
+  opts.forEach(([t,ok],i)=>{
+    const b=document.createElement('button'); b.className='b opt';
+    b.innerHTML='<i>'+String.fromCharCode(65+i)+'</i><span>'+t+'</span>';
+    b.onclick=()=>{ [...d.querySelector('#ro').children].forEach(c=>c.disabled=true);
+      b.classList.add(ok?'right':'wrong');
+      if(!ok) d.querySelector('#ro').children[0].classList.add('right');
+      S.redoxPick={CuO:'reduced',H2:'oxidised'};
+      const v=d.querySelector('#rv'); v.hidden=false;
+      v.innerHTML='<b>Copper oxide lost its oxygen, so it was reduced. Hydrogen gained that oxygen, so it was oxidised.</b> The oxygen atom had to go somewhere — which is why oxidation and reduction are always two halves of the same event. The substance that gives oxygen away is the oxidising agent; here that is copper oxide.';
+      done.redox=true; };
+    d.querySelector('#ro').appendChild(b);
+  });
+  return d;
+}
+function precipControls(){
+  const d=el(`<div class="ctrls">
+    <div class="btnrow"><button class="b key" id="mix">Mix the two solutions</button><button class="b ghost" id="reset">Reset</button></div>
+    <p class="mini" style="margin:0">five signs a reaction has happened</p>
+    <div class="btnrow" id="signs"></div></div>`);
+  d.querySelector('#mix').onclick=()=>{S.mixed=true; done.mix=true;};
+  d.querySelector('#reset').onclick=()=>{S.mixed=false; IONS.forEach(i=>{i.p=null; i.y=260+Math.random()*240;
+    i.x=(i.k==='Pb'||i.k==='NO3')?160+Math.random()*260:580+Math.random()*260;});};
+  ['colour change','gas given off','precipitate forms','temperature change','smell changes'].forEach(t=>{
+    const s=document.createElement('span'); s.className='mini'; s.style.cssText='border:1px solid var(--line);border-radius:99px;padding:5px 10px';
+    s.textContent=t; d.querySelector('#signs').appendChild(s);});
+  return d;
+}
+function nailControls(){
+  const d=el('<div class="ctrls"><div id="np"></div><div class="ctrl"><label>Days passed <b id="dv">0</b></label><input id="dd" type="range" min="0" max="10" value="0"></div><div class="verdict" id="nv" hidden></div></div>');
+  TUBES.forEach(t=>{
+    const row=el('<div class="coefrow"><span style="font-size:13.5px">'+t.lbl+'</span><span class="btnrow"></span></div>');
+    const br=row.querySelector('.btnrow');
+    [['rusts',1],['no rust',0]].forEach(([lbl,v])=>{
+      const b=document.createElement('button'); b.className='b'; b.style.padding='6px 10px'; b.textContent=lbl;
+      b.onclick=()=>{ S.nailPred[t.id]=v; [...br.children].forEach(c=>c.classList.remove('key')); b.classList.add('key');
+        if(Object.keys(S.nailPred).length===4) d.querySelector('#dd').focus(); };
+      br.appendChild(b); });
+    d.querySelector('#np').appendChild(row);
+  });
+  d.querySelector('#dd').oninput=e=>{ S.day=+e.target.value; d.querySelector('#dv').textContent=S.day;
+    if(S.day>=10&&Object.keys(S.nailPred).length===4){ done.nails=true;
+      const v=d.querySelector('#nv'); v.hidden=false;
+      v.innerHTML=TUBES.map(t=>'<b>'+t.lbl+':</b> '+t.why).join('<br>')+'<br><br><b>Rusting needs oxygen AND water together.</b> Remove either one and it stops — which is exactly what paint, grease and galvanising do.'; } };
+  return d;
+}
+const MYTHS=[
+ {c:'When a candle burns away to almost nothing, matter has been destroyed.',t:false,
+  why:'The wax left as carbon dioxide and water vapour — invisible, but weighable. Burn a candle inside a sealed, weighed jar and the total mass does not change by a milligram.'},
+ {c:'You can balance an equation by changing H₂O into H₂O₂.',t:false,
+  why:'That is no longer water; it is hydrogen peroxide, a different substance with different properties. Only the big coefficients in front may change. The subscripts are the recipe of the substance itself.'},
+ {c:'A precipitate is simply a solid that was always there, settling down.',t:false,
+  why:'Both starting solutions were clear and completely dissolved. The solid did not exist before the ions met — it was made by the reaction, which is why it counts as evidence that one happened.'},
+ {c:'Rust is just dirt that sticks to iron in damp places.',t:false,
+  why:'It is a new chemical substance — hydrated iron oxide, heavier than the iron it replaced, with oxygen built into it. Your four-tube test showed it refuses to appear when either oxygen or water is missing.'}
+];
+function mythBox(){
+  const d=el('<div class="ctrls"></div>'); let n=0;
+  MYTHS.forEach(m=>{
+    const row=el('<div style="border-bottom:1px solid var(--line);padding-bottom:11px"><p style="margin:0 0 8px;font-size:15px">“'+m.c+'”</p><div class="btnrow"></div><div class="verdict" hidden style="margin-top:9px"></div></div>');
+    const br=row.querySelector('.btnrow');
+    [['True',true],['False',false]].forEach(([lbl,val])=>{
+      const b=document.createElement('button'); b.className='b'; b.textContent=lbl;
+      b.onclick=()=>{ [...br.children].forEach(c=>c.disabled=true);
+        const ok=val===m.t; b.classList.add(ok?'right':'wrong');
+        const v=row.querySelector('.verdict'); v.hidden=false;
+        v.innerHTML='<b>'+(ok?'Correct. ':'It is false. ')+'</b>'+m.why;
+        n++; if(n>=MYTHS.length) done.myths=true; };
+      br.appendChild(b); });
+    d.appendChild(row);
+  });
+  return d;
+}
+go(0);
+})();
+</script>
+</body>
+</html>
