@@ -277,34 +277,67 @@
 
         #putty-chat {
             display: none;
-            width: 450px;
-            min-width: 300px;
-            max-width: 60vw;
+            width: var(--chat-width, 450px);
+            min-width: 320px;
+            max-width: min(85vw, 1100px);
             background: white;
             box-shadow: -4px 0 25px rgba(0,0,0,0.1);
             flex-direction: column;
             overflow: hidden;
-            border-left: 4px solid #cbd5e1; /* Visual handle on the left edge */
+            position: relative;
             z-index: 100;
-            direction: rtl; /* Flips the CSS resize handle to the bottom-left corner! */
-            resize: horizontal; /* Enables stretching to the left, squeezing main-content */
         }
-        
-        #putty-chat > * {
-            direction: ltr; /* Reset text direction for chat contents */
+
+        /* Full edge vertical resize handle on the complete left border */
+        .chat-resize-handle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 10px;
+            cursor: col-resize;
+            background: transparent;
+            z-index: 120;
+            transition: background 0.15s ease;
+            user-select: none;
+            touch-action: none;
+        }
+        .chat-resize-handle::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+        [data-theme="dark"] .chat-resize-handle::after {
+            background: #475569;
+        }
+        .chat-resize-handle:hover,
+        .chat-resize-handle.active {
+            background: rgba(37, 99, 235, 0.08);
+        }
+        .chat-resize-handle:hover::after,
+        .chat-resize-handle.active::after {
+            width: 5px;
+            background: var(--primary-light);
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
         }
 
         .chat-header {
             background-color: var(--primary-light);
             color: white;
-            padding: 12px 20px;
+            padding: 12px 18px 12px 22px;
             font-weight: 600;
             font-size: 1.15rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 10px;
+            user-select: none;
         }
         
         .chat-header button {
@@ -678,43 +711,86 @@
             cursor: pointer;
         }
         .sidebar-tools button:hover { background: #334155; }
-        .top-actions {
+        /* Centered News Button */
+        .top-news-btn {
             position: fixed;
-            top: 16px;
-            right: 22px;
-            z-index: 1100;
-            display: flex;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-        }
-        .top-action {
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            background: rgba(255,255,255,.95);
-            color: #334155;
-            min-height: 34px;
-            padding: 7px 10px;
-            font: inherit;
-            font-size: .82rem;
+            padding: 8px 20px;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #1e293b;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            font-family: inherit;
+            font-size: 0.88rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 3px 10px rgba(15,23,42,.12);
+            box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            text-decoration: none;
         }
-        .top-action.settings {
+        .top-news-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 18px rgba(217, 119, 6, 0.35);
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        }
+        .top-news-btn:active {
+            transform: translateX(-50%) translateY(0);
+        }
+        [data-theme="dark"] .top-news-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            color: #0f172a;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        /* Top Right Settings / Theme Icon (Smoothly moves left when chat is open so it NEVER coincides) */
+        #theme-toggle {
+            position: fixed;
+            top: 14px;
+            right: calc(var(--chat-width, 0px) + 20px);
+            z-index: 95;
             width: 36px;
-            padding: 7px 0;
-            font-size: 1rem;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: rgba(255, 255, 255, 0.95);
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12);
+            transition: right 0.22s ease, background 0.2s, transform 0.2s;
         }
-        .top-action:hover { background: #f8fafc; transform: translateY(-1px); }
-        [data-theme="dark"] .top-action {
-            background: rgba(30,41,59,.96);
+        #theme-toggle:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] #theme-toggle {
+            background: rgba(30, 41, 59, 0.96);
             border-color: #475569;
             color: #e2e8f0;
         }
-        [data-theme="dark"] .top-action:hover { background: #334155; }
-        @media (max-width: 600px) {
-            .top-actions { top: 10px; right: 10px; }
-            .top-action.news { font-size: .75rem; padding-inline: 8px; }
+        [data-theme="dark"] #theme-toggle:hover {
+            background: #334155;
+        }
+
+        @media (max-width: 768px) {
+            .top-news-btn {
+                top: 12px;
+                font-size: 0.8rem;
+                padding: 6px 14px;
+            }
+            body.chat-open #theme-toggle {
+                display: none; /* Hide when full-screen chat is open on mobile */
+            }
         }
         .labs-intro {
             background: linear-gradient(135deg, #eff6ff, #f8fafc);
@@ -801,14 +877,15 @@
 </head>
 <body>
 
-    <div class="top-actions" aria-label="Quick actions">
-        <button class="top-action news" type="button" onclick="window.open('https://briefly-student-news-vercel.vercel.app/','_blank')" title="Open Student News in a new tab">
-            📰 News
-        </button>
-        <button class="top-action settings" id="theme-toggle" type="button" onclick="toggleTheme()" title="Change theme" aria-label="Change theme">
-            ⚙
-        </button>
-    </div>
+    <!-- Centered News Button in the Middle -->
+    <button class="top-news-btn" type="button" onclick="window.open('https://briefly-student-news-vercel.vercel.app/','_blank')" title="Open Briefly Student News in a new tab">
+        📰 Briefly Student News
+    </button>
+
+    <!-- Top Right Settings Icon (Smoothly moves away when chatbot is open so it never coincides) -->
+    <button id="theme-toggle" type="button" onclick="toggleTheme()" title="Change theme" aria-label="Change theme">
+        ⚙
+    </button>
 
     <!-- Mobile Menu Button -->
     <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
@@ -842,11 +919,13 @@
 
     <!-- Dynamic Split-Screen Chat Panel -->
     <div id="putty-chat">
+        <!-- Full edge vertical resize handle (resizable from complete edge) -->
+        <div id="chat-resize-handle" class="chat-resize-handle" title="Drag left or right to resize chat"></div>
         <div class="chat-header">
             <div style="display:flex; align-items:center; gap: 8px;">
                 AI Tutor
             </div>
-            <div style="display:flex; align-items:center; gap: 12px;">
+            <div style="display:flex; align-items:center; gap: 8px; flex-shrink: 0;">
                 <div class="usage-circle" id="usage-circle" title="Credits managed dynamically by your Puter.com account" style="background: conic-gradient(#4ade80 100%, #1e293b 0);">
                     <div class="usage-inner" id="usage-text" style="font-size: 1rem;">♾️</div>
                 </div>
@@ -964,6 +1043,7 @@
 
     async function init() {
         applyTheme(localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
+        initChatResize();
         try {
             const simRes = await fetch('sci_math_simulations.json');
             if (simRes.ok) {
@@ -1291,13 +1371,94 @@
     function toggleChat() {
         if (chatUI.style.display === 'flex') {
             chatUI.style.display = 'none';
+            document.body.classList.remove('chat-open');
+            document.documentElement.style.setProperty('--chat-width', '0px');
             document.getElementById('putty-icon').style.display = 'flex';
         } else {
             chatUI.style.display = 'flex';
+            document.body.classList.add('chat-open');
+            const savedWidth = localStorage.getItem('preferredChatWidth');
+            const width = (savedWidth ? parseInt(savedWidth, 10) : 450) + 'px';
+            chatUI.style.width = width;
+            document.documentElement.style.setProperty('--chat-width', width);
             document.getElementById('putty-icon').style.display = 'none';
             chatInput.focus();
             updateRealAllowance();
         }
+    }
+
+    // Chatbot Edge Resizing Logic (resizable from the complete left edge)
+    const chatResizeHandle = document.getElementById('chat-resize-handle');
+    let isResizingChat = false;
+    let resizeStartX = 0;
+    let resizeStartWidth = 0;
+
+    function initChatResize() {
+        if (!chatResizeHandle) return;
+        const savedWidth = localStorage.getItem('preferredChatWidth');
+        const defaultWidth = savedWidth ? parseInt(savedWidth, 10) : 450;
+        chatUI.style.width = defaultWidth + 'px';
+        if (chatUI.style.display === 'flex') {
+            document.documentElement.style.setProperty('--chat-width', defaultWidth + 'px');
+            document.body.classList.add('chat-open');
+        } else {
+            document.documentElement.style.setProperty('--chat-width', '0px');
+            document.body.classList.remove('chat-open');
+        }
+
+        const onPointerDown = (clientX) => {
+            isResizingChat = true;
+            resizeStartX = clientX;
+            resizeStartWidth = chatUI.getBoundingClientRect().width;
+            chatResizeHandle.classList.add('active');
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor = 'col-resize';
+        };
+
+        const onPointerMove = (clientX) => {
+            if (!isResizingChat) return;
+            const delta = resizeStartX - clientX;
+            let newWidth = resizeStartWidth + delta;
+
+            const minWidth = 320;
+            const maxWidth = Math.min(window.innerWidth * 0.85, window.innerWidth - 80);
+            if (newWidth < minWidth) newWidth = minWidth;
+            if (newWidth > maxWidth) newWidth = maxWidth;
+
+            chatUI.style.width = newWidth + 'px';
+            document.documentElement.style.setProperty('--chat-width', newWidth + 'px');
+        };
+
+        const onPointerUp = () => {
+            if (isResizingChat) {
+                isResizingChat = false;
+                chatResizeHandle.classList.remove('active');
+                document.body.style.userSelect = '';
+                document.body.style.cursor = '';
+                localStorage.setItem('preferredChatWidth', parseInt(chatUI.style.width, 10));
+            }
+        };
+
+        // Desktop mouse drag
+        chatResizeHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            onPointerDown(e.clientX);
+        });
+        window.addEventListener('mousemove', (e) => onPointerMove(e.clientX));
+        window.addEventListener('mouseup', onPointerUp);
+
+        // Touchscreen & tablet drag
+        chatResizeHandle.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches[0]) {
+                onPointerDown(e.touches[0].clientX);
+            }
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            if (isResizingChat && e.touches && e.touches[0]) {
+                onPointerMove(e.touches[0].clientX);
+            }
+        }, { passive: true });
+        window.addEventListener('touchend', onPointerUp);
     }
 
     async function updateRealAllowance() {
